@@ -1,0 +1,294 @@
+
+R version 2.12.1 (2010-12-16)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##s060_data_to_plink.e
+> ##2011-03-12 dmontaner@cipf.es
+> ##analisis de datos para Carmen Espinos y Eduardo Calpena.
+> ##Formateamos los datos para enviar al Plink
+> 
+> ################################################################################
+> ###                         Fichero ped de Plink                             ###
+> ################################################################################
+> 
+> ## The PED file is a white-space (space or tab) delimited file: the first six columns are mandatory:
+> ##      Family ID
+> ##      Individual ID
+> ##      Paternal ID
+> ##      Maternal ID
+> ##      Sex (1=male; 2=female; other=unknown)
+> ##      Phenotype
+> 
+> ## The phenotype can be either a quantitative trait or an affection status column:
+> ## PLINK will automatically detect which type (i.e. based on whether a value other than 0, 1, 2
+> ## or the missing genotype code is observed).
+> 
+> ## Affection status, by default, should be coded:
+> ##     -9 missing 
+> ##      0 missing
+> ##      1 unaffected
+> ##      2 affected
+> 
+> ## If your file is coded 0/1 to represent unaffected/affected, then use the --1 flag:
+> 
+> ## plink --file mydata --1
+> 
+> ## which will specify a disease phenotype coded:
+> ##      -9 missing
+> ##       0 unaffected
+> ##       1 affected
+> 
+> ## Genotypes (column 7 onwards) should also be white-space delimited;
+> ## they can be any character (e.g. 1,2,3,4 or A,C,G,T or anything else)
+> ## except 0 which is, by default, the missing genotype character.
+> 
+> ## All markers should be biallelic.
+> ## All SNPs (whether haploid or not) must have two alleles specified.
+> ## Either Both alleles should be missing (i.e. 0) or neither.
+> ## No header row should be given.
+> 
+> 
+> ################################################################################
+> ###                         Fichero map de Plink                             ###
+> ################################################################################
+> 
+> ## By default, each line of the MAP file describes a single marker and must contain exactly 4 columns:
+> ##      chromosome (1-22, X, Y or 0 if unplaced)
+> ##      rs# or snp identifier
+> ##      Genetic distance (morgans)
+> ##      Base-pair position (bp units)
+> 
+> ## Genetic distance can be specified in centimorgans with the --cm flag.
+> ## Alternatively, you can use a MAP file with the genetic distance excluded by adding the flag --map3, i.e.
+> ## plink --file mydata --map3
+> 
+> ## In this case, the three columns are expected to be
+> ##      chromosome (1-22, X, Y or 0 if unplaced)
+> ##      rs# or snp identifier
+> ##      Base-pair position (bp units)
+> 
+> ## Base-pair positions are expected to correspond to positive integers
+> ## within the range of typical human chromosome sizes.
+> 
+> ## The autosomes should be coded 1 through 22.
+> ## The following other codes can be used to specify other chromosome types:
+> ##      X    X chromosome                    -> 23
+> ##      Y    Y chromosome                    -> 24
+> ##      XY   Pseudo-autosomal region of X    -> 25
+> ##      MT   Mitochondrial                   -> 26
+> 
+> ################################################################################
+> ###                          Distancia Genetica                              ###
+> ################################################################################
+> 
+> ##DE la anotacion de affymetrix
+> 
+> ##    3. Genetic maps.
+> 
+> ##    This annotation is to provide a rough estimate on SNP genetic 
+> ## distances to the p-telomere. Those estimates may be used as seed input 
+> ## for linkage analysis programs like MERLIN 
+> ## (http://www.sph.umich.edu/csg/abecasis/Merlin/). As a requirement of 
+> ## MERLIN, every SNP has to have a unique genetic distance. SNP genetic 
+> ## distances were extrapolated from three experimentally obtained genetic 
+> ## maps: deCODE map, Marshfield map, and SLM1 map.
+> 
+> ## 	1). deCODE genetic map was built by genotyping 5,136 
+> ## microsatellite markers for 146 families (1), and is available through 
+> ## Nature Genetics (see reference).
+> 
+> ##   	2). Marshfield genetic map (2) was based on CEPH family genotypes 
+> ## for 7,740 microsatellite markers, and is available from 
+> ## http://research.marshfieldclinic.org/genetics/Map_Markers/maps/IndexMap
+> ## Frames.html.
+> 
+> ##   	3). SLM1 (SNP Linkage Map) map was generated from unpublished 
+> ## data from Affymetrix and Dr. Aravinda Chakravarti group at Johns 
+> ## Hopkins University. It was based on genotypes for 2,022 microsatellite 
+> ## markers and 6,205 SNPs.
+> 
+> ##    Physical locations of markers used in each genetic map were obtained 
+> ## from the UCSC database (ftp://genome.ucsc.edu). Markers are removed 
+> ## when their genetic order is opposite of their physical order. When 
+> ## physically neighboring markers share the same genetic distance, only 
+> ## the one with the largest physical position was kept in order that no 
+> ## two SNPs have exactly the same genetic distance. Physical positions of 
+> ## SNPs and physical locations of the markers in the cleaned genetic maps 
+> ## were compared to infer genetic distances for SNPs. We assume that 
+> ## genetic distance changes linearly with physical distance between any 
+> ## two neighboring markers in each genetic map. 
+> 
+> 
+> date ()
+[1] "Sun Mar 13 13:16:35 2011"
+> Sys.info ()[c("nodename", "user")]
+     nodename          user 
+"davidlaptop"   "dmontaner" 
+> commandArgs ()
+[1] "/usr/lib64/R/bin/exec/R" "-f"                     
+[3] "s060_data_to_plink.r"    "--restore"              
+[5] "--save"                  "--no-readline"          
+[7] "--no-save"               "--no-restore"           
+> rm (list = ls ())
+> R.version.string #"R version 2.12.1 (2010-12-16)"
+[1] "R version 2.12.1 (2010-12-16)"
+> #library (kinship); packageDescription ("kinship", fields = "Version") #"1.1.0-23"
+> 
+> try (source (".job.r")); try (.job)
+
+.job.r has been sourced
+
+$owner
+[1] "eduardo_calpena"
+
+$datadir
+[1] "~/datos/2011/eduardo_calpena"
+
+$docsdir
+[1] "~/trabajos/2011/eduardo_calpena"
+
+$scriptdir
+[1] "~/trabajos/2011/eduardo_calpena/scripts"
+
+$sinfodir
+[1] "~/trabajos/2011/eduardo_calpena/sampleinfo"
+
+$plotsdir
+[1] "~/datos/2011/eduardo_calpena/data_results/from_script_plots"
+
+$testmode
+[1] FALSE
+
+$dec
+[1] "."
+
+> 
+> ###DATOS
+> load (file = file.path (.job$datadir, "data_processed", "ped.RData"))
+> load (file = file.path (.job$datadir, "data_processed", "datos_filtrados.RData"))
+> 
+> dim (ped)
+[1] 18  8
+> dim (datos)
+[1] 198323     14
+> 
+> table (colnames (datos) %in% rownames (ped)) ##OK
+
+TRUE 
+  14 
+> 
+> ################################################################################
+> 
+> setwd (file.path (.job$datadir, "data_processed", "plink"))
+> dir ()
+character(0)
+> 
+> 
+> ### PED
+> 
+> zeros <- rep (0, times = 2 * nrow (datos))
+> length (zeros)
+[1] 396646
+> 
+> system.time ({
++   d <- NULL
++   for (pt in rownames (ped)) {
++     if (pt %in% colnames (datos)) {
++       print (pt)
++       d[pt] <- paste (c(ped[pt, 1:6], datos[,pt]), collapse = "\t")
++     } else {
++       d[pt] <- paste (c(ped[pt, 1:6], zeros), collapse = "\t")
++     }
++   }
++ })
+[1] "id1046"
+[1] "id907"
+[1] "id715"
+[1] "id716"
+[1] "id717"
+[1] "id718"
+[1] "id719"
+[1] "id720"
+[1] "id721"
+[1] "id722"
+[1] "id723"
+[1] "id724"
+[1] "id726"
+[1] "id1047"
+   user  system elapsed 
+   6.78    0.04    6.84 
+> length (d)
+[1] 18
+> 
+> writeLines (d, con = "plinkfile.ped", sep = "\n")
+> 
+> ################################################################################
+> 
+> 
+> ### MAP
+> annot[1:10, c("Physical.Position", "posicion")]
+           Physical.Position  posicion
+rs17106009          50661138  50661138
+rs233978           104675512 104675512
+rs251292            65190626  65190626
+rs1705415           25671066  25671066
+rs4501824          192589418 192589418
+rs1340013            1298487   1298487
+rs7730126          158729947 158729947
+rs10834942          26300969  26300969
+rs7995987           77436808  77436808
+rs7828844          119412451 119412451
+> 
+> annot[10, c("Genetic.Map", "deCODE.genetic.map")]
+                                                                                                                                                                              Genetic.Map
+rs7828844 119.275532398441 // D8S527 // D8S1016 // --- // --- /// 125.227290701707 // UNKNOWN // D8S522 // GATA123H10 // AFM240WC9 /// 112.430115576225 // --- // D8S522 // 563867 // ---
+          deCODE.genetic.map
+rs7828844           119.2755
+> annot[10000, c("Genetic.Map", "deCODE.genetic.map")]
+                                                                                                                                                                                 Genetic.Map
+rs11178648 85.8175051997227 // D12S2195 // D12S80 // --- // --- /// 82.2178298702477 // UNKNOWN // D12S1052 // GATA134C11 // GATA26D02 /// 80.4507424640285 // --- // --- // 487200 // 54724
+           deCODE.genetic.map
+rs11178648            85.8175
+> 
+> 
+> write.table (annot[,c("Chromosome", "dbSNP.RS.ID", "deCODE.genetic.map", "posicion")],
++              file = "plinkfile.map", append = FALSE, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+> 
+> 
+> ###EXIT
+> warnings ()
+NULL
+> sessionInfo ()
+R version 2.12.1 (2010-12-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=C              LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+> q ("no")
+> proc.time()
+   user  system elapsed 
+  30.26    0.29   30.64 

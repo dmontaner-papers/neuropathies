@@ -1,0 +1,248 @@
+
+R version 2.12.1 (2010-12-16)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##s020_estudio_cel_files.r
+> ##2011-03-11 dmontaner@cipf.es
+> ##analisis de datos para Carmen Espinos y Eduardo Calpena.
+> ##Vemos como son las distribuciones de los ficheros CEL para revisar por que la calidad de los datos es tan mala
+> 
+> date ()
+[1] "Fri Mar 11 23:19:42 2011"
+> Sys.info ()[c("nodename", "user")]
+     nodename          user 
+"davidlaptop"   "dmontaner" 
+> commandArgs ()
+[1] "/usr/lib64/R/bin/exec/R"  "-f"                      
+[3] "s030_estudio_cel_files.r" "--restore"               
+[5] "--save"                   "--no-readline"           
+[7] "--no-save"                "--no-restore"            
+> rm (list = ls ())
+> R.version.string #"R version 2.12.1 (2010-12-16)"
+[1] "R version 2.12.1 (2010-12-16)"
+> library (affy); packageDescription ("affy", fields = "Version") # "1.28.0"
+Loading required package: Biobase
+
+Welcome to Bioconductor
+
+  Vignettes contain introductory material. To view, type
+  'openVignette()'. To cite Bioconductor, see
+  'citation("Biobase")' and for packages 'citation(pkgname)'.
+
+[1] "1.28.0"
+> #library (kinship); packageDescription ("kinship", fields = "Version") #"1.1.0-23"
+> 
+> try (source (".job.r")); try (.job)
+
+.job.r has been sourced
+
+$owner
+[1] "eduardo_calpena"
+
+$datadir
+[1] "~/datos/2011/eduardo_calpena"
+
+$docsdir
+[1] "~/trabajos/2011/eduardo_calpena"
+
+$scriptdir
+[1] "~/trabajos/2011/eduardo_calpena/scripts"
+
+$sinfodir
+[1] "~/trabajos/2011/eduardo_calpena/sampleinfo"
+
+$plotsdir
+[1] "~/datos/2011/eduardo_calpena/data_results/from_script_plots"
+
+$testmode
+[1] FALSE
+
+$dec
+[1] "."
+
+> 
+> 
+> ###DATOS
+> system.time (load (file = file.path (.job$datadir, "data_processed", "raw_data.RData")))
+   user  system elapsed 
+ 48.650   0.700  49.487 
+> 
+> dim (datos)
+[1] 6553600      30
+> 
+> summary (datos)
+   PP1046.CEL         PP1047.CEL         PP 715.CEL        PP 716.CEL     
+ Min.   :   20.00   Min.   :   20.00   Min.   :   27.0   Min.   :   24.0  
+ 1st Qu.:   36.00   1st Qu.:   38.00   1st Qu.:  105.0   1st Qu.:   55.0  
+ Median :   45.00   Median :   46.00   Median :  145.0   Median :   79.0  
+ Mean   :   66.85   Mean   :   76.34   Mean   :  220.3   Mean   :  128.8  
+ 3rd Qu.:   62.00   3rd Qu.:   66.00   3rd Qu.:  234.0   3rd Qu.:  131.0  
+ Max.   :65534.00   Max.   :21653.00   Max.   :64444.0   Max.   :65534.0  
+   PP 717.CEL        PP 718.CEL        PP 719.CEL        PP 720.CEL     
+ Min.   :   28.0   Min.   :   26.0   Min.   :   26.0   Min.   :   25.0  
+ 1st Qu.:  109.0   1st Qu.:   63.0   1st Qu.:   79.0   1st Qu.:   74.0  
+ Median :  167.0   Median :   77.0   Median :  106.0   Median :  100.0  
+ Mean   :  275.6   Mean   :  107.0   Mean   :  156.8   Mean   :  155.3  
+ 3rd Qu.:  303.0   3rd Qu.:   98.0   3rd Qu.:  158.0   3rd Qu.:  156.0  
+ Max.   :65534.0   Max.   :51690.0   Max.   :57980.0   Max.   :65534.0  
+   PP 721.CEL        PP 722.CEL        PP 723.CEL        PP 724.CEL     
+ Min.   :   27.0   Min.   :   27.0   Min.   :   22.0   Min.   :   27.0  
+ 1st Qu.:   97.0   1st Qu.:  100.0   1st Qu.:   52.0   1st Qu.:   89.0  
+ Median :  150.0   Median :  168.0   Median :   74.0   Median :  141.0  
+ Mean   :  253.5   Mean   :  278.9   Mean   :  110.7   Mean   :  242.3  
+ 3rd Qu.:  278.0   3rd Qu.:  330.0   3rd Qu.:  117.0   3rd Qu.:  276.0  
+ Max.   :65534.0   Max.   :50326.0   Max.   :65534.0   Max.   :65534.0  
+   PP 726.CEL        PP907.CEL         PP907DIC.CEL      CEU_NA12707_NSP.CEL
+ Min.   :   25.0   Min.   :   22.00   Min.   :   20.00   Min.   :   57      
+ 1st Qu.:   76.0   1st Qu.:   39.00   1st Qu.:   42.00   1st Qu.:  282      
+ Median :  120.0   Median :   47.00   Median :   53.00   Median :  505      
+ Mean   :  208.2   Mean   :   70.37   Mean   :   78.46   Mean   :  833      
+ 3rd Qu.:  225.0   3rd Qu.:   68.00   3rd Qu.:   76.00   3rd Qu.: 1018      
+ Max.   :65534.0   Max.   :44118.00   Max.   :65534.00   Max.   :65534      
+ CHB+JPT_NA18943_NSP.CEL CHB+JPT_NA18605_NSP.CEL CHB+JPT_NA18624_NSP.CEL
+ Min.   :   67.0         Min.   :   53.0         Min.   :   71.0        
+ 1st Qu.:  192.0         1st Qu.:  256.0         1st Qu.:  218.0        
+ Median :  337.0         Median :  450.0         Median :  367.0        
+ Mean   :  553.1         Mean   :  718.2         Mean   :  580.5        
+ 3rd Qu.:  627.0         3rd Qu.:  878.0         3rd Qu.:  664.0        
+ Max.   :65534.0         Max.   :65534.0         Max.   :65534.0        
+ CEU_NA12872_NSP.CEL YRI_NA19206_NSP.CEL CHB+JPT_NA18945_NSP.CEL
+ Min.   :   34.0     Min.   :   78       Min.   :   38.0        
+ 1st Qu.:  151.0     1st Qu.:  327       1st Qu.:  198.0        
+ Median :  292.0     Median :  522       Median :  352.0        
+ Mean   :  474.3     Mean   :  757       Mean   :  608.5        
+ 3rd Qu.:  558.0     3rd Qu.:  900       3rd Qu.:  718.0        
+ Max.   :65534.0     Max.   :65534       Max.   :65534.0        
+ CEU_NA12801_NSP.CEL YRI_NA19143_NSP.CEL YRI_NA19145_NSP.CEL
+ Min.   :   42.0     Min.   :   75.0     Min.   :   30.0    
+ 1st Qu.:  242.0     1st Qu.:  299.0     1st Qu.:  230.0    
+ Median :  450.0     Median :  496.0     Median :  396.0    
+ Mean   :  818.8     Mean   :  718.6     Mean   :  584.1    
+ 3rd Qu.:  965.0     3rd Qu.:  852.0     3rd Qu.:  692.0    
+ Max.   :65533.0     Max.   :63192.0     Max.   :65013.0    
+ YRI_NA18501_NSP.CEL CHB+JPT_NA18611_NSP.CEL CEU_NA11832_NSP.CEL
+ Min.   :   40.0     Min.   :   52.0         Min.   :   52      
+ 1st Qu.:  244.0     1st Qu.:  239.0         1st Qu.:  198      
+ Median :  434.0     Median :  444.0         Median :  342      
+ Mean   :  616.7     Mean   :  763.6         Mean   :  571      
+ 3rd Qu.:  736.0     3rd Qu.:  908.0         3rd Qu.:  687      
+ Max.   :50042.0     Max.   :55471.0         Max.   :31373      
+ CHB+JPT_NA18942_NSP.CEL CHB+JPT_NA18981_NSP.CEL
+ Min.   :   80.0         Min.   :   32.0        
+ 1st Qu.:  219.0         1st Qu.:  149.0        
+ Median :  338.0         Median :  283.0        
+ Mean   :  497.6         Mean   :  472.7        
+ 3rd Qu.:  531.0         3rd Qu.:  553.0        
+ Max.   :65534.0         Max.   :28515.0        
+> 
+> medianas <- apply (datos, 2, median)
+> medianas
+             PP1046.CEL              PP1047.CEL              PP 715.CEL 
+                     45                      46                     145 
+             PP 716.CEL              PP 717.CEL              PP 718.CEL 
+                     79                     167                      77 
+             PP 719.CEL              PP 720.CEL              PP 721.CEL 
+                    106                     100                     150 
+             PP 722.CEL              PP 723.CEL              PP 724.CEL 
+                    168                      74                     141 
+             PP 726.CEL               PP907.CEL            PP907DIC.CEL 
+                    120                      47                      53 
+    CEU_NA12707_NSP.CEL CHB+JPT_NA18943_NSP.CEL CHB+JPT_NA18605_NSP.CEL 
+                    505                     337                     450 
+CHB+JPT_NA18624_NSP.CEL     CEU_NA12872_NSP.CEL     YRI_NA19206_NSP.CEL 
+                    367                     292                     522 
+CHB+JPT_NA18945_NSP.CEL     CEU_NA12801_NSP.CEL     YRI_NA19143_NSP.CEL 
+                    352                     450                     496 
+    YRI_NA19145_NSP.CEL     YRI_NA18501_NSP.CEL CHB+JPT_NA18611_NSP.CEL 
+                    396                     434                     444 
+    CEU_NA11832_NSP.CEL CHB+JPT_NA18942_NSP.CEL CHB+JPT_NA18981_NSP.CEL 
+                    342                     338                     283 
+> 
+> ###SALVAMOS
+> save (list = "medianas", file = file.path (.job$datadir, "data_processed", "raw_data_medians.RData"))
+> 
+> ################################################################################
+> 
+> misfilas <- sample (1:nrow (datos), size = 10000)
+> 
+> datos <- datos[misfilas,]
+> 
+> gc ()
+          used (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells  338782 18.1    8039461  429.4   6940504  370.7
+Vcells 2579908 19.7  615077608 4692.7 765756097 5842.3
+> gc ()
+          used (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells  338786 18.1    6431568  343.5   6940504  370.7
+Vcells 2579930 19.7  492062086 3754.2 765756097 5842.3
+> 
+> colores <- rep (c("red", "blue"), each = 15)
+> colores
+ [1] "red"  "red"  "red"  "red"  "red"  "red"  "red"  "red"  "red"  "red" 
+[11] "red"  "red"  "red"  "red"  "red"  "blue" "blue" "blue" "blue" "blue"
+[21] "blue" "blue" "blue" "blue" "blue" "blue" "blue" "blue" "blue" "blue"
+> 
+> nombres <- colnames (datos)
+> nombres <- sub (".CEL", "", nombres)
+> nombres
+ [1] "PP1046"              "PP1047"              "PP 715"             
+ [4] "PP 716"              "PP 717"              "PP 718"             
+ [7] "PP 719"              "PP 720"              "PP 721"             
+[10] "PP 722"              "PP 723"              "PP 724"             
+[13] "PP 726"              "PP907"               "PP907DIC"           
+[16] "CEU_NA12707_NSP"     "CHB+JPT_NA18943_NSP" "CHB+JPT_NA18605_NSP"
+[19] "CHB+JPT_NA18624_NSP" "CEU_NA12872_NSP"     "YRI_NA19206_NSP"    
+[22] "CHB+JPT_NA18945_NSP" "CEU_NA12801_NSP"     "YRI_NA19143_NSP"    
+[25] "YRI_NA19145_NSP"     "YRI_NA18501_NSP"     "CHB+JPT_NA18611_NSP"
+[28] "CEU_NA11832_NSP"     "CHB+JPT_NA18942_NSP" "CHB+JPT_NA18981_NSP"
+> 
+> pdf (file = file.path (.job$plotsdir, "boxplots.pdf"))
+> boxplot (datos, log = "y", las = 3, col = colores, names = nombres)
+> dev.off ()
+null device 
+          1 
+>      
+> 
+> ###EXIT
+> warnings ()
+NULL
+> sessionInfo ()
+R version 2.12.1 (2010-12-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=C              LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] affy_1.28.0    Biobase_2.10.0
+
+loaded via a namespace (and not attached):
+[1] affyio_1.18.0         preprocessCore_1.12.0
+> q ("no")
+> proc.time()
+   user  system elapsed 
+122.500   7.920 130.835 

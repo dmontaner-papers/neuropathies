@@ -1,0 +1,252 @@
+
+R version 2.13.1 (2011-07-08)
+Copyright (C) 2011 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##v010_datos_dbSNP_cromosoma_17.r
+> ##2012-02-16 dmontaner@cipf.es
+> ##analisis de datos para Carmen Espinos y Eduardo Calpena.
+> ##Revisamos los resultados del cromosoma 17
+> ##preparo la anotacion descargada de dbSNP
+> 
+> ## FORMAT DESCRIPTIONS CONTINUED
+> ## --------------------
+> ## CHROMOSOME REPORTS
+> ## --------------------
+> 
+> ## The Chromosome Reports format provides an ordered list of RefSNPs in approximate
+> ## chromosome coordinates (the same coordinate system used for the
+> ## NCBI genome MapViewer); it is a small file to download, and contains a great
+> ## deal of information about each SNP.
+> 
+> ## The lines of the Chromosome Report format give the following information
+> ## for a single RefSNP in tab-delimited columns:
+> 
+> ## Column   Data
+> ##   1      RefSNP id (rs#)
+> ##   2      mapweight where
+> ##             1 = Unmapped
+> ##             2 = Mapped to single position in genome
+> ##             3 = Mapped to 2 positions on a single chromosome
+> ##             4 = Mapped to 3-10 positions in genome (possible paralog hits)
+> ##             5 = Mapped to >10 positions in genome.  
+> ## 		Please note that the number used to code mapweight for the Chromosome Report Format
+> ## 		is different from the database tables.  Please see the online FAQ at:
+> ## 		http://www.ncbi.nlm.nih.gov/books/bv.fcgi?mapweight&rid=helpsnpfaq.
+> ## 		section.Build.The_dbSNP_Mapping_Pr#Build.Mapping_Weight
+> ##   3      snp_type where
+> ##             0 = Not withdrawn.
+> ##             1 = Withdrawn. There are several reasons for withdrawn, the
+> ##                 withdrawn status is fully defined in the asn1, flatfile,
+> ##                 and XML descriptions of the RefSNP. See /specs/docsum_3.0.asn
+> ##                 for a full definition of snp-type values.
+> ##   4      Total number of chromosomes hit by this RefSNP during mapping
+> ##   5      Total number of contigs hit by this RefSNP during mapping
+> ##   6      Total number of hits to genome by this RefSNP during mapping
+> ##   7      Chromosome for this hit to genome
+> ##   8      Contig accession for this hit to genome
+> ##   9      Version number of contig accession for this hit to genome
+> ##  10      Contig ID for this hit to genome
+> ##  11      Position of RefSNP in contig coordinates
+> ##  12      Position of RefSNP in chromosome coordinates (used to order report)
+> ##             Locations are specified in NCBI sequence location convention where:
+> ##                    x, a single number, indicates a feature at base position x
+> ##                    x..y, denotes a feature that spans from x to y inclusive.
+> ##                    x^y, denotes a feature that is inserted between bases x and y
+> ##  13      Genes at this same position on the chromosome
+> ##  14      Average heterozygosity of this RefSNP
+> ##  15      Standard error of average heterozygosity
+> ##  16      Maximum reported probability that RefSNP is real. (For computationally-
+> ##              predicted submissions)
+> ##  17      Validated status
+> ##              0 = No validation information
+> ##              1 = Cluster has 2+ submissions, with 1+ submission assayed 
+> ##                  with a non-computational method
+> ##              2 = At least one subsnp in cluster has frequency data submitted
+> ##              3 = Non-computational method in cluster and frequency data present
+> ##              4 = At lease one subsnp in cluster has been experimentally 
+> ##                  validated by submitter
+> ##                  for other validation status values, please see:
+> ##                  <a href="ftp://ftp.ncbi.nih.gov/snp/database/organism_shared_data/SnpValidationCode.bcp.gz">ftp://ftp.ncbi.nih.gov/snp/database/organism_shared_data
+> ##                  /SnpValidationCode.bcp.gz</a>
+> ##  18      Genotypes available in dbSNP for this RefSNP
+> ##              1 = yes
+> ##              0 = no
+> ##  19      Linkout available to submitter website for further data on the RefSNP
+> ##              1 = yes
+> ##              0 = no
+> ##  20      dbSNP build ID when the refSNP was first created (i.e. the create date)
+> ##  21      dbSNP build ID of the most recent change to the refSNP cluster. The
+> ##          date of the change is represented by the build ID which has an
+> ##          approximate date/time associated with it. (see:
+> ##          http://www.ncbi.nlm.nih.gov/projects/SNP/buildhistory.cgi)
+> ## 22       Mapped to a reference or alternate (e.g. Celera) assembly 
+> 
+> ## Also included within the chr_rpt file are two additional files:
+> ##               multi/ contains a list (in chromosome report format) of SNPs that
+> ##               hit multiple chromosomes in the genome
+> 
+> ##               noton/ contains a list (in chromosome report format) of SNPs that
+> ##               didn't hit any chromosomes in the genome
+> 
+> date ()
+[1] "Thu Feb 16 18:58:38 2012"
+> Sys.info ()[c("nodename", "user")]
+     nodename          user 
+"davidlaptop"   "dmontaner" 
+> commandArgs ()
+[1] "/usr/local/lib64/R/bin/exec/R"   "-f"                             
+[3] "v010_datos_dbSNP_cromosoma_17.r" "--restore"                      
+[5] "--save"                          "--no-readline"                  
+[7] "--no-save"                       "--no-restore"                   
+> rm (list = ls ())
+> R.version.string #"R version 2.12.1 (2010-12-16)"
+[1] "R version 2.13.1 (2011-07-08)"
+> #library (kinship); packageDescription ("kinship", fields = "Version") #"1.1.0-23"
+> 
+> try (source (".job.r")); try (.job)
+
+.job.r has been sourced
+
+$owner
+[1] "eduardo_calpena"
+
+$datadir
+[1] "~/datos/2011/eduardo_calpena"
+
+$docsdir
+[1] "~/trabajos/2011/eduardo_calpena"
+
+$scriptdir
+[1] "~/trabajos/2011/eduardo_calpena/scripts"
+
+$sinfodir
+[1] "~/trabajos/2011/eduardo_calpena/sampleinfo"
+
+$plotsdir
+[1] "~/datos/2011/eduardo_calpena/data_results/from_script_plots"
+
+$testmode
+[1] FALSE
+
+$dec
+[1] "."
+
+> 
+> 
+> ###DATOS
+> setwd (file.path (.job$datadir, "data_raw", "dbSNP"))
+> system.time (dbsnp <- read.table (file = "chr_17.txt", header = FALSE, sep = "\t", quote = "", as.is = TRUE, skip = 7))
+   user  system elapsed 
+  94.22    1.34   96.42 
+> dim (dbsnp) #2143929      26
+[1] 2143929      26
+> 
+> dbsnp <- dbsnp[,c(1, 2, 4, 7, 12, 13, 16, 22)]
+> colnames (dbsnp) <- c("id", "mapweigh", "NtotCHR", "chr", "pos", "genes", "prob", "ref")
+> dbsnp[,"id"] <- paste ("rs", dbsnp$id, sep = "")
+> sapply (dbsnp, class)
+         id    mapweigh     NtotCHR         chr         pos       genes 
+"character"   "integer"   "integer" "character"   "integer" "character" 
+       prob         ref 
+  "integer" "character" 
+> 
+> table (duplicated (dbsnp))
+
+  FALSE    TRUE 
+2138767    5162 
+> 
+> dbsnp <- unique (dbsnp)
+> dim (dbsnp)
+[1] 2138767       8
+> 
+> summary (dbsnp)
+      id               mapweigh        NtotCHR      chr           
+ Length:2138767     Min.   :2.000   Min.   :1   Length:2138767    
+ Class :character   1st Qu.:2.000   1st Qu.:1   Class :character  
+ Mode  :character   Median :2.000   Median :1   Mode  :character  
+                    Mean   :2.023   Mean   :1                     
+                    3rd Qu.:2.000   3rd Qu.:1                     
+                    Max.   :3.000   Max.   :1                     
+                                                                  
+      pos               genes                prob               ref           
+ Min.   :       56   Length:2138767     Min.   :8.400e+01   Length:2138767    
+ 1st Qu.: 17903742   Class :character   1st Qu.:9.900e+01   Class :character  
+ Median : 40297810   Mode  :character   Median :9.900e+01   Mode  :character  
+ Mean   : 40318559                      Mean   :9.884e+01                     
+ 3rd Qu.: 61595814                      3rd Qu.:9.900e+01                     
+ Max.   :234293184                      Max.   :1.000e+02                     
+ NA's   :    35243                      NA's   :2.120e+06                     
+> 
+> table (duplicated (dbsnp[,c("id", "chr", "pos", "ref")]))
+
+  FALSE    TRUE 
+2135900    2867 
+> table (duplicated (dbsnp[,c("id")]))
+
+  FALSE    TRUE 
+1405695  733072 
+> 
+> 
+> table (dbsnp[,"chr"])
+
+      ?       1      10      11      12      13      14      15      16      17 
+   4649     127      65      83      70      58      37      34      57 2101455 
+     18      19       2      20      21      22       3       4       5       6 
+     25     158     140      25      19      31      73      95      63     191 
+      7       8       9       X       Y 
+  31072      59      83      80      18 
+> table (dbsnp[,"NtotCHR"]) ##???
+
+      1 
+2138767 
+> 
+> table (dbsnp[,"ref"])
+
+CRA_TCAGchr7v2      GRCh37.p5          HuRef 
+         30953        1447146         660668 
+> 
+> 
+> ###eliminamos los que tienen la pos NA
+> dbsnp <- dbsnp[!is.na (dbsnp$pos),]
+> 
+> 
+> ###SALVAMOS
+> save (list = "dbsnp", file = file.path (.job$datadir, "data_processed", "anotacion_dbSNP_cromosoma17.RData"))
+> 
+> ###EXIT
+> warnings ()
+NULL
+> sessionInfo ()
+R version 2.13.1 (2011-07-08)
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=C              LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+> q ("no")
+> proc.time()
+   user  system elapsed 
+142.420   1.950 145.653 

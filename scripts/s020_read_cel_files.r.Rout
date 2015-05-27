@@ -1,0 +1,177 @@
+
+R version 2.12.1 (2010-12-16)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##s020_read_cel_files.r
+> ##2011-03-11 dmontaner@cipf.es
+> ##analisis de datos para Carmen Espinos y Eduardo Calpena.
+> ##Leemos los CEL files para hacer un control de calidad:
+> ##Vemos como son las distribuciones de los ficheros CEL para revisar por que la calidad de los datos es tan mala
+> 
+> date ()
+[1] "Fri Mar 11 22:55:35 2011"
+> Sys.info ()[c("nodename", "user")]
+     nodename          user 
+"davidlaptop"   "dmontaner" 
+> commandArgs ()
+[1] "/usr/lib64/R/bin/exec/R" "-f"                     
+[3] "s020_read_cel_files.r"   "--restore"              
+[5] "--save"                  "--no-readline"          
+[7] "--no-save"               "--no-restore"           
+> rm (list = ls ())
+> R.version.string #"R version 2.12.1 (2010-12-16)"
+[1] "R version 2.12.1 (2010-12-16)"
+> library (affy); packageDescription ("affy", fields = "Version") # "1.28.0"
+Loading required package: Biobase
+
+Welcome to Bioconductor
+
+  Vignettes contain introductory material. To view, type
+  'openVignette()'. To cite Bioconductor, see
+  'citation("Biobase")' and for packages 'citation(pkgname)'.
+
+[1] "1.28.0"
+> #library (kinship); packageDescription ("kinship", fields = "Version") #"1.1.0-23"
+> 
+> try (source (".job.r")); try (.job)
+
+.job.r has been sourced
+
+$owner
+[1] "eduardo_calpena"
+
+$datadir
+[1] "~/datos/2011/eduardo_calpena"
+
+$docsdir
+[1] "~/trabajos/2011/eduardo_calpena"
+
+$scriptdir
+[1] "~/trabajos/2011/eduardo_calpena/scripts"
+
+$sinfodir
+[1] "~/trabajos/2011/eduardo_calpena/sampleinfo"
+
+$plotsdir
+[1] "~/datos/2011/eduardo_calpena/data_results/from_script_plots"
+
+$testmode
+[1] FALSE
+
+$dec
+[1] "."
+
+> 
+> 
+> ###DATOS
+> ficheros.carmen <- dir (file.path (.job$datadir, "data_raw", "snp"), full.names = TRUE)
+> ficheros.hapmap <- dir (file.path (.job$datadir, "data_raw", "hapmap"), full.names = TRUE)
+> ficheros.hapmap <- sample (ficheros.hapmap, size = 15)
+> 
+> ficheros.carmen 
+ [1] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/snp/PP1046.CEL"  
+ [2] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/snp/PP1047.CEL"  
+ [3] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/snp/PP 715.CEL"  
+ [4] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/snp/PP 716.CEL"  
+ [5] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/snp/PP 717.CEL"  
+ [6] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/snp/PP 718.CEL"  
+ [7] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/snp/PP 719.CEL"  
+ [8] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/snp/PP 720.CEL"  
+ [9] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/snp/PP 721.CEL"  
+[10] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/snp/PP 722.CEL"  
+[11] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/snp/PP 723.CEL"  
+[12] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/snp/PP 724.CEL"  
+[13] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/snp/PP 726.CEL"  
+[14] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/snp/PP907.CEL"   
+[15] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/snp/PP907DIC.CEL"
+> ficheros.hapmap
+ [1] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/hapmap/CEU_NA12707_NSP.CEL"    
+ [2] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/hapmap/CHB+JPT_NA18943_NSP.CEL"
+ [3] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/hapmap/CHB+JPT_NA18605_NSP.CEL"
+ [4] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/hapmap/CHB+JPT_NA18624_NSP.CEL"
+ [5] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/hapmap/CEU_NA12872_NSP.CEL"    
+ [6] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/hapmap/YRI_NA19206_NSP.CEL"    
+ [7] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/hapmap/CHB+JPT_NA18945_NSP.CEL"
+ [8] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/hapmap/CEU_NA12801_NSP.CEL"    
+ [9] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/hapmap/YRI_NA19143_NSP.CEL"    
+[10] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/hapmap/YRI_NA19145_NSP.CEL"    
+[11] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/hapmap/YRI_NA18501_NSP.CEL"    
+[12] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/hapmap/CHB+JPT_NA18611_NSP.CEL"
+[13] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/hapmap/CEU_NA11832_NSP.CEL"    
+[14] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/hapmap/CHB+JPT_NA18942_NSP.CEL"
+[15] "/home/dmontaner/datos/2011/eduardo_calpena/data_raw/hapmap/CHB+JPT_NA18981_NSP.CEL"
+> 
+> 
+> system.time (datos <- ReadAffy (filenames = c (ficheros.carmen, ficheros.hapmap)))
+   user  system elapsed 
+ 50.000   9.510 125.474 
+> 
+> 
+> datos <- exprs (datos)
+> dim (datos)
+[1] 6553600      30
+> colnames (datos)
+ [1] "PP1046.CEL"              "PP1047.CEL"             
+ [3] "PP 715.CEL"              "PP 716.CEL"             
+ [5] "PP 717.CEL"              "PP 718.CEL"             
+ [7] "PP 719.CEL"              "PP 720.CEL"             
+ [9] "PP 721.CEL"              "PP 722.CEL"             
+[11] "PP 723.CEL"              "PP 724.CEL"             
+[13] "PP 726.CEL"              "PP907.CEL"              
+[15] "PP907DIC.CEL"            "CEU_NA12707_NSP.CEL"    
+[17] "CHB+JPT_NA18943_NSP.CEL" "CHB+JPT_NA18605_NSP.CEL"
+[19] "CHB+JPT_NA18624_NSP.CEL" "CEU_NA12872_NSP.CEL"    
+[21] "YRI_NA19206_NSP.CEL"     "CHB+JPT_NA18945_NSP.CEL"
+[23] "CEU_NA12801_NSP.CEL"     "YRI_NA19143_NSP.CEL"    
+[25] "YRI_NA19145_NSP.CEL"     "YRI_NA18501_NSP.CEL"    
+[27] "CHB+JPT_NA18611_NSP.CEL" "CEU_NA11832_NSP.CEL"    
+[29] "CHB+JPT_NA18942_NSP.CEL" "CHB+JPT_NA18981_NSP.CEL"
+> 
+> 
+> ###SALVAMOS
+> save (list = "datos", file = file.path (.job$datadir, "data_processed", "raw_data.RData"))
+> 
+> 
+> ###EXIT
+> warnings ()
+NULL
+> sessionInfo ()
+R version 2.12.1 (2010-12-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=C              LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] affy_1.28.0    Biobase_2.10.0
+
+loaded via a namespace (and not attached):
+[1] affyio_1.18.0         preprocessCore_1.12.0 tools_2.12.1         
+> q ("no")
+> proc.time()
+   user  system elapsed 
+178.100  10.760 276.094 

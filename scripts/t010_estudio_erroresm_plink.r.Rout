@@ -1,0 +1,224 @@
+
+R version 2.12.1 (2010-12-16)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##t010_estudio_eroresm_plink.r
+> ##2011-03-12 dmontaner@cipf.es
+> ##analisis de datos para Carmen Espinos y Eduardo Calpena.
+> ##Vemos los ERRORES Mendelianos detectados por el plink
+> 
+> 
+> ## To generate a list of Mendel errors for SNPs and families, use the option:
+>   
+> ##   plink --file plinkfile --mendel
+> 
+> ## which will create files:
+> ##      plink.mendel
+> ##      plink.imendel
+> ##      plink.fmendel
+> ##      plink.lmendel
+> 
+> ## The *.mendel file contains all Mendel errors (i.e. one line per error);
+> ## the *.imendel file contains a summary of per-individual error rates;
+> ## the *.fmendel file contains a summary of per-family error rates;
+> ## the *.lmendel file contains a summary of per-SNP error rates.
+> 
+> 
+> date ()
+[1] "Sun Mar 13 15:17:08 2011"
+> Sys.info ()[c("nodename", "user")]
+     nodename          user 
+"davidlaptop"   "dmontaner" 
+> commandArgs ()
+[1] "/usr/lib64/R/bin/exec/R"       "-f"                           
+[3] "t010_estudio_erroresm_plink.r" "--restore"                    
+[5] "--save"                        "--no-readline"                
+[7] "--no-save"                     "--no-restore"                 
+> rm (list = ls ())
+> R.version.string #"R version 2.12.1 (2010-12-16)"
+[1] "R version 2.12.1 (2010-12-16)"
+> #library (kinship); packageDescription ("kinship", fields = "Version") #"1.1.0-23"
+> 
+> try (source (".job.r")); try (.job)
+
+.job.r has been sourced
+
+$owner
+[1] "eduardo_calpena"
+
+$datadir
+[1] "~/datos/2011/eduardo_calpena"
+
+$docsdir
+[1] "~/trabajos/2011/eduardo_calpena"
+
+$scriptdir
+[1] "~/trabajos/2011/eduardo_calpena/scripts"
+
+$sinfodir
+[1] "~/trabajos/2011/eduardo_calpena/sampleinfo"
+
+$plotsdir
+[1] "~/datos/2011/eduardo_calpena/data_results/from_script_plots"
+
+$testmode
+[1] FALSE
+
+$dec
+[1] "."
+
+> 
+> ###DATOS
+> load (file = file.path (.job$datadir, "data_processed", "ped.RData"))
+> load (file = file.path (.job$datadir, "data_processed", "datos_filtrados.RData"))
+> 
+> dim (ped)
+[1] 18  8
+> dim (datos)
+[1] 198323     14
+> 
+> table (colnames (datos) %in% rownames (ped)) ##OK
+
+TRUE 
+  14 
+> 
+> ################################################################################
+> 
+> 
+> ##Datos Errores Mendelianos - Plink
+> 
+> imen <- read.table (file = file.path (.job$datadir, "data_processed", "plink", "plink.imendel"),
++                     header = TRUE, as.is = TRUE)
+> 
+> sapply (imen, class)
+      FID       IID         N 
+"integer" "integer" "integer" 
+> 
+> imen[,'pct'] <- 100 * imen$N / nrow (datos)
+> 
+> imen
+   FID  IID     N        pct
+1  266  300     0  0.0000000
+2  266  400     0  0.0000000
+3  266  718     0  0.0000000
+4  266  719     0  0.0000000
+5  266  720     0  0.0000000
+6  266  721     0  0.0000000
+7  266  723     0  0.0000000
+8  266  718 22917 11.5553920
+9  266 1046 16141  8.1387434
+10 266  726 24470 12.3384580
+11 266 1047 10982  5.5374314
+12 266  907  6451  3.2527745
+13 266  720  3433  1.7310146
+14 266  724  8386  4.2284556
+15 266  921     0  0.0000000
+16 266  721  4544  2.2912118
+17 266  715  1654  0.8339930
+18 266  716  2281  1.1501440
+19 266  717   609  0.3070748
+20 266  923     0  0.0000000
+21 266  723  1851  0.9333259
+22 266  722  1851  0.9333259
+> 
+> ################################################################################
+> 
+> 
+> hea <- read.table (file = file.path (.job$datadir, "data_processed", "plink", "plink.mendel"),
++                    header = FALSE, as.is = TRUE, nrow = 1)
+> hea <- unlist (hea)
+> hea
+     V1      V2      V3      V4      V5      V6 
+  "FID"   "KID"   "CHR"   "SNP"  "CODE" "ERROR" 
+> 
+> men <- read.table (file = file.path (.job$datadir, "data_processed", "plink", "plink.mendel"),
++                    header = FALSE, as.is = TRUE, skip = 1)
+> 
+> dim (men) #50233    10
+[1] 50233    10
+> 
+> sapply (men, class)
+         V1          V2          V3          V4          V5          V6 
+  "integer"   "integer"   "integer" "character"   "integer" "character" 
+         V7          V8          V9         V10 
+"character" "character" "character" "character" 
+> colnames (men)[1:5] <- hea[1:5]
+> 
+> length (unique (men$SNP)) #42334
+[1] 42334
+> 100 *length (unique (men$SNP)) / nrow (datos)
+[1] 21.34599
+> 
+> men[1:10,]
+   FID  KID CHR        SNP CODE  V6 V7  V8 V9 V10
+1  266  724   1  rs2272908    7 */*  x G/G -> A/A
+2  266  726   1  rs2985862    6 A/A  x */* -> G/G
+3  266  726   1 rs10910093    6 A/A  x */* -> G/G
+4  266 1047   1  rs4474198    6 C/C  x */* -> T/T
+5  266 1047   1   rs729045    6 C/C  x */* -> T/T
+6  266  726   1  rs6670123    4 */*  x C/C -> G/G
+7  266  726   1  rs2487681    7 */*  x G/G -> A/A
+8  266  726   1  rs3856168    6 A/A  x */* -> G/G
+9  266  726   1 rs12073797    4 */*  x T/T -> C/C
+10 266 1047   1 rs12073797    6 C/C  x */* -> T/T
+> datos['rs2272908',]
+id1046 id1047  id715  id716  id717  id718  id719  id720  id721  id722  id723 
+"A\tA" "A\tG" "G\tG" "A\tG" "A\tA" "0\t0" "G\tG" "G\tG" "0\t0" "G\tG" "A\tG" 
+ id724  id726  id907 
+"A\tA" "A\tG" "A\tA" 
+> datos['rs12073797',]
+id1046 id1047  id715  id716  id717  id718  id719  id720  id721  id722  id723 
+"T\tT" "T\tT" "C\tC" "C\tC" "C\tC" "C\tC" "C\tC" "C\tC" "C\tC" "C\tC" "C\tC" 
+ id724  id726  id907 
+"C\tC" "C\tC" "T\tT" 
+> 
+> 
+> ###SALVAMOS errores mendelianos segun plink
+> men.plink <- unique (men$SNP)
+> length (men.plink)
+[1] 42334
+> men.plink[1:10]
+ [1] "rs2272908"  "rs2985862"  "rs10910093" "rs4474198"  "rs729045"  
+ [6] "rs6670123"  "rs2487681"  "rs3856168"  "rs12073797" "rs7528938" 
+> 
+> save (list = "men.plink", file = file.path (.job$datadir, "data_processed", "errores_mendel_plink.RData"))
+> 
+> 
+> 
+> ###EXIT
+> warnings ()
+NULL
+> sessionInfo ()
+R version 2.12.1 (2010-12-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=C              LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+> q ("no")
+> proc.time()
+   user  system elapsed 
+ 23.200   0.130  23.411 

@@ -1,0 +1,161 @@
+
+R version 2.12.1 (2010-12-16)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##r010_data_checking.r
+> ##2011-02-03 dmontaner@cipf.es
+> ##2011-03-11 dmontaner@cipf.es
+> ##analisis de datos para Carmen Espinos y Eduardo Calpena.
+> ##Comprobamos los datos del pedigree
+> 
+> ### 14 individuos:
+> ##                   11 antiguos
+> ##                    3 nuevos - Con uno de los arrays por DUPLICADO: el 907
+> ## 15 arrays
+> 
+> date ()
+[1] "Fri Mar 11 12:29:33 2011"
+> Sys.info ()[c("nodename", "user")]
+     nodename          user 
+"davidlaptop"   "dmontaner" 
+> commandArgs ()
+[1] "/usr/lib64/R/bin/exec/R" "-f"                     
+[3] "r010_data_checking.r"    "--restore"              
+[5] "--save"                  "--no-readline"          
+[7] "--no-save"               "--no-restore"           
+> rm (list = ls ())
+> R.version.string #"R version 2.12.1 (2010-12-16)"
+[1] "R version 2.12.1 (2010-12-16)"
+> library (affy); packageDescription ("affy", fields = "Version") #"1.28.0"
+Loading required package: Biobase
+
+Welcome to Bioconductor
+
+  Vignettes contain introductory material. To view, type
+  'openVignette()'. To cite Bioconductor, see
+  'citation("Biobase")' and for packages 'citation(pkgname)'.
+
+[1] "1.28.0"
+> library (affyio); packageDescription ("affyio", fields = "Version") #"1.18.0"
+[1] "1.18.0"
+> try (source (".job.r")); try (.job)
+
+.job.r has been sourced
+
+$owner
+[1] "eduardo_calpena"
+
+$datadir
+[1] "~/datos/2011/eduardo_calpena"
+
+$docsdir
+[1] "~/trabajos/2011/eduardo_calpena"
+
+$scriptdir
+[1] "~/trabajos/2011/eduardo_calpena/scripts"
+
+$sinfodir
+[1] "~/trabajos/2011/eduardo_calpena/sampleinfo"
+
+$plotsdir
+[1] "~/datos/2011/eduardo_calpena/data_results/from_script_plots"
+
+$testmode
+[1] FALSE
+
+$dec
+[1] "."
+
+> 
+> 
+> ###DATOS
+> setwd (file.path (.job$datadir, "data_raw", "snp"))
+> dir ()
+ [1] "PP1046.CEL"   "PP1047.CEL"   "PP 715.CEL"   "PP 716.CEL"   "PP 717.CEL"  
+ [6] "PP 718.CEL"   "PP 719.CEL"   "PP 720.CEL"   "PP 721.CEL"   "PP 722.CEL"  
+[11] "PP 723.CEL"   "PP 724.CEL"   "PP 726.CEL"   "PP907.CEL"    "PP907DIC.CEL"
+> 
+> ficheros <- dir ()
+> ficheros ## ok son unicos
+ [1] "PP1046.CEL"   "PP1047.CEL"   "PP 715.CEL"   "PP 716.CEL"   "PP 717.CEL"  
+ [6] "PP 718.CEL"   "PP 719.CEL"   "PP 720.CEL"   "PP 721.CEL"   "PP 722.CEL"  
+[11] "PP 723.CEL"   "PP 724.CEL"   "PP 726.CEL"   "PP907.CEL"    "PP907DIC.CEL"
+> 
+> 
+> array.type <- unique (sapply (ficheros, function (x) read.celfile.header (x)$cdfName))
+> array.type
+[1] "Mapping250K_Nsp"
+> 
+> ################################################################################
+> 
+> patient.id <- sub (pattern = ".CEL", replacement = "", ficheros)
+> patient.id <- sub (pattern = "PP ", replacement = "", patient.id)
+> patient.id <- sub (pattern = "PP", replacement = "", patient.id)
+> patient.id <- sub (pattern = "DIC", replacement = "", patient.id)
+> 
+> sinfo <- as.data.frame (list (filename = ficheros, samplename = patient.id), stringsAsFactors = FALSE)
+> sinfo
+       filename samplename
+1    PP1046.CEL       1046
+2    PP1047.CEL       1047
+3    PP 715.CEL        715
+4    PP 716.CEL        716
+5    PP 717.CEL        717
+6    PP 718.CEL        718
+7    PP 719.CEL        719
+8    PP 720.CEL        720
+9    PP 721.CEL        721
+10   PP 722.CEL        722
+11   PP 723.CEL        723
+12   PP 724.CEL        724
+13   PP 726.CEL        726
+14    PP907.CEL        907
+15 PP907DIC.CEL        907
+> 
+> sapply (sinfo, class)
+   filename  samplename 
+"character" "character" 
+> 
+> ###EXIT
+> warnings ()
+NULL
+> sessionInfo ()
+R version 2.12.1 (2010-12-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=C              LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] affyio_1.18.0  affy_1.28.0    Biobase_2.10.0
+
+loaded via a namespace (and not attached):
+[1] preprocessCore_1.12.0
+> q ("no")
+> proc.time()
+   user  system elapsed 
+  0.650   0.030   0.681 

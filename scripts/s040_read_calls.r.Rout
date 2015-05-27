@@ -1,0 +1,467 @@
+
+R version 2.12.1 (2010-12-16)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##s040_read_calls.r
+> ##2011-03-11 dmontaner@cipf.es
+> ##analisis de datos para Carmen Espinos y Eduardo Calpena.
+> ##Leemos los calls para convertirlos a sus alelos
+> 
+> date ()
+[1] "Sat Mar 12 02:15:46 2011"
+> Sys.info ()[c("nodename", "user")]
+     nodename          user 
+"davidlaptop"   "dmontaner" 
+> commandArgs ()
+[1] "/usr/lib64/R/bin/exec/R" "-f"                     
+[3] "s040_read_calls.r"       "--restore"              
+[5] "--save"                  "--no-readline"          
+[7] "--no-save"               "--no-restore"           
+> rm (list = ls ())
+> R.version.string #"R version 2.12.1 (2010-12-16)"
+[1] "R version 2.12.1 (2010-12-16)"
+> #library (kinship); packageDescription ("kinship", fields = "Version") #"1.1.0-23"
+> 
+> try (source (".job.r")); try (.job)
+
+.job.r has been sourced
+
+$owner
+[1] "eduardo_calpena"
+
+$datadir
+[1] "~/datos/2011/eduardo_calpena"
+
+$docsdir
+[1] "~/trabajos/2011/eduardo_calpena"
+
+$scriptdir
+[1] "~/trabajos/2011/eduardo_calpena/scripts"
+
+$sinfodir
+[1] "~/trabajos/2011/eduardo_calpena/sampleinfo"
+
+$plotsdir
+[1] "~/datos/2011/eduardo_calpena/data_results/from_script_plots"
+
+$testmode
+[1] FALSE
+
+$dec
+[1] "."
+
+> 
+> 
+> ###ANOTACION
+> system.time (annot <- read.csv (file = file.path (.job$datadir, "data_raw", "annotation", "Mapping250K_Nsp.na31.annot.csv",
++                                   "Mapping250K_Nsp.na31.annot.csv"), header = TRUE, sep = ",", quote="\"", dec=".",
++                                 fill = TRUE, comment.char="#", as.is = TRUE))
+   user  system elapsed 
+ 52.680   0.550  53.376 
+> dim (annot) #262264     27
+[1] 262264     27
+> clases <- sapply (annot, class)
+> clases
+                               Probe.Set.ID 
+                                "character" 
+                                dbSNP.RS.ID 
+                                "character" 
+                                 Chromosome 
+                                "character" 
+                          Physical.Position 
+                                "character" 
+                                     Strand 
+                                "character" 
+             ChrX.pseudo.autosomal.region.1 
+                                "character" 
+                                   Cytoband 
+                                "character" 
+                                      Flank 
+                                "character" 
+                                   Allele.A 
+                                "character" 
+                                   Allele.B 
+                                "character" 
+                            Associated.Gene 
+                                "character" 
+                                Genetic.Map 
+                                "character" 
+                             Microsatellite 
+                                "character" 
+     Fragment.Enzyme.Type.Length.Start.Stop 
+                                "character" 
+                         Allele.Frequencies 
+                                "character" 
+            Heterozygous.Allele.Frequencies 
+                                "character" 
+Number.of.individuals.Number.of.chromosomes 
+                                "character" 
+                                  In.Hapmap 
+                                "character" 
+                        Strand.Versus.dbSNP 
+                                "character" 
+                      Copy.Number.Variation 
+                                "character" 
+                                Probe.Count 
+                                  "integer" 
+             ChrX.pseudo.autosomal.region.2 
+                                "character" 
+                              In.Final.List 
+                                "character" 
+                               Minor.Allele 
+                                "character" 
+                     Minor.Allele.Frequency 
+                                "character" 
+                                      X..GC 
+                                "character" 
+                                       OMIM 
+                                "character" 
+> 
+> colnames (annot)
+ [1] "Probe.Set.ID"                               
+ [2] "dbSNP.RS.ID"                                
+ [3] "Chromosome"                                 
+ [4] "Physical.Position"                          
+ [5] "Strand"                                     
+ [6] "ChrX.pseudo.autosomal.region.1"             
+ [7] "Cytoband"                                   
+ [8] "Flank"                                      
+ [9] "Allele.A"                                   
+[10] "Allele.B"                                   
+[11] "Associated.Gene"                            
+[12] "Genetic.Map"                                
+[13] "Microsatellite"                             
+[14] "Fragment.Enzyme.Type.Length.Start.Stop"     
+[15] "Allele.Frequencies"                         
+[16] "Heterozygous.Allele.Frequencies"            
+[17] "Number.of.individuals.Number.of.chromosomes"
+[18] "In.Hapmap"                                  
+[19] "Strand.Versus.dbSNP"                        
+[20] "Copy.Number.Variation"                      
+[21] "Probe.Count"                                
+[22] "ChrX.pseudo.autosomal.region.2"             
+[23] "In.Final.List"                              
+[24] "Minor.Allele"                               
+[25] "Minor.Allele.Frequency"                     
+[26] "X..GC"                                      
+[27] "OMIM"                                       
+> 
+> table (annot[,"Allele.A"], exclude = NULL)
+
+     A      C      G   <NA> 
+133726 111342  17196      0 
+> table (annot[,"Allele.B"], exclude = NULL)
+
+     C      G      T   <NA> 
+ 24142 117707 120415      0 
+> 
+> table (annot[,"Chromosome"], exclude = NULL)
+
+  ---     1    10    11    12    13    14    15    16    17    18    19     2 
+  283 19858 14264 13290 13047 11075  8175  7003  7010  4844  8145  2691 22206 
+   20    21    22     3     4     5     6     7     8     9     X     Y  <NA> 
+ 5839  3936  2499 18359 19053 17153 17106 13932 14835 11942  5714     5     0 
+> 
+> table (duplicated (annot[,"Probe.Set.ID"])) #OK no hay duplicados
+
+ FALSE 
+262264 
+> rownames (annot) <- annot[,"Probe.Set.ID"]
+> 
+> table (duplicated (annot[,"dbSNP.RS.ID"]))  #PROBLEMA HAY UN DUPLICADO
+
+ FALSE   TRUE 
+262263      1 
+> 
+> annot[duplicated (annot[,"dbSNP.RS.ID"]),"dbSNP.RS.ID"]
+[1] "rs41388745"
+> 
+> table (annot[,"Strand"], exclude = NULL)
+
+     -    ---      +   <NA> 
+130860    243 131161      0 
+> 
+> annot[1000:1010, "OMIM"]
+ [1] "---"                                                                                                                                                                                                                                                                                                                                                                                                                                    
+ [2] "---"                                                                                                                                                                                                                                                                                                                                                                                                                                    
+ [3] "---"                                                                                                                                                                                                                                                                                                                                                                                                                                    
+ [4] "---"                                                                                                                                                                                                                                                                                                                                                                                                                                    
+ [5] "---"                                                                                                                                                                                                                                                                                                                                                                                                                                    
+ [6] "609058 // Methylmalonic aciduria, mut type // 251000 // ENST00000274813 // downstream /// 609058 // Methylmalonic aciduria, mut type // 251000 // NM_000255 // downstream"                                                                                                                                                                                                                                                              
+ [7] "606857 // Hemolytic anemia due to gamma-glutamylcysteine synthetase deficiency // 230450 // ENST00000229416 // upstream /// 606857 // Hemolytic anemia due to gamma-glutamylcysteine synthetase deficiency // 230450 // NM_001498 // upstream /// 606857 // Myocardial infarction, susceptibility to // 608446 // ENST00000229416 // upstream /// 606857 // Myocardial infarction, susceptibility to // 608446 // NM_001498 // upstream"
+ [8] "---"                                                                                                                                                                                                                                                                                                                                                                                                                                    
+ [9] "---"                                                                                                                                                                                                                                                                                                                                                                                                                                    
+[10] "601515 // Spinocerebellar ataxia-27 // 609307 // ENST00000376131 // intron /// 601515 // Spinocerebellar ataxia-27 // 609307 // NM_175929 // intron"                                                                                                                                                                                                                                                                                    
+[11] "---"                                                                                                                                                                                                                                                                                                                                                                                                                                    
+> annot[1000:1010, "Copy.Number.Variation"]
+ [1] "---"                                                                                                                            
+ [2] "---"                                                                                                                            
+ [3] "---"                                                                                                                            
+ [4] "---"                                                                                                                            
+ [5] "---"                                                                                                                            
+ [6] "---"                                                                                                                            
+ [7] "---"                                                                                                                            
+ [8] "---"                                                                                                                            
+ [9] "---"                                                                                                                            
+[10] "Variation_4816 // chr13:102631298-102805300 // BAC Array CGH // 17160897 // Wong et al. (2007) // CopyNumber"                   
+[11] "Variation_9139 // chr10:19407891-19836364 // Affymetrix 500K SNP Mapping Array // 17911159 // Pinto et al. (2007) // CopyNumber"
+> 
+> ################################################################################
+> 
+> 
+> ###DATOS sin HapMap
+> system.time (datos.sin <- read.table (file = file.path (.job$datadir, "data_processed", "apt", "probeset-genotype-chp",
++                                         "brlmm.calls.txt"),
++                                       header = TRUE, sep = "\t", quote = "", as.is = TRUE, comment.char = "#", nrows = 100))
+   user  system elapsed 
+  0.010   0.000   0.002 
+> mis.clases <- sapply (datos.sin, class)
+> mis.clases
+ probeset_id   PP1046.CEL   PP1047.CEL   PP.715.CEL   PP.716.CEL   PP.717.CEL 
+ "character"    "integer"    "integer"    "integer"    "integer"    "integer" 
+  PP.718.CEL   PP.719.CEL   PP.720.CEL   PP.721.CEL   PP.722.CEL   PP.723.CEL 
+   "integer"    "integer"    "integer"    "integer"    "integer"    "integer" 
+  PP.724.CEL   PP.726.CEL    PP907.CEL PP907DIC.CEL 
+   "integer"    "integer"    "integer"    "integer" 
+> 
+> system.time (datos.sin <- read.table (file = file.path (.job$datadir, "data_processed", "apt", "probeset-genotype-chp",
++                                         "brlmm.calls.txt"),
++                                       header = TRUE, sep = "\t", quote = "", row.names = 1, colClasses = mis.clases,
++                                       comment.char = "#"))
+   user  system elapsed 
+  0.900   0.000   0.902 
+> 
+> datos.sin[1:10,]
+             PP1046.CEL PP1047.CEL PP.715.CEL PP.716.CEL PP.717.CEL PP.718.CEL
+AFFX-2315060         -1          2          2          2          2          2
+AFFX-2315061          0          1          2          0          2          2
+AFFX-2315062          0          0          2          1          2          0
+AFFX-2315057          1          2          2          2          2          1
+AFFX-2315058          0          0          1          1          1          0
+AFFX-2315059         -1         -1          0          0          0         -1
+AFFX-2315063          0          0          0          1          1          1
+AFFX-2315064          1          2          2          2          2          1
+AFFX-2315065          1          1         -1          1          1          2
+AFFX-2315066          2          1          2          1          1         -1
+             PP.719.CEL PP.720.CEL PP.721.CEL PP.722.CEL PP.723.CEL PP.724.CEL
+AFFX-2315060          2          2          2          1         -1          1
+AFFX-2315061          0          1          1          0          0          2
+AFFX-2315062          1          1          1          1          1          1
+AFFX-2315057          0          2          2          2          2          1
+AFFX-2315058          0          2          2          1          1          1
+AFFX-2315059          0          0          0          0          0          0
+AFFX-2315063          1          1          1          1          1          1
+AFFX-2315064          2          1          2          2          2          1
+AFFX-2315065          2          2          2          2          1          1
+AFFX-2315066          0          1          1          1          0          2
+             PP.726.CEL PP907.CEL PP907DIC.CEL
+AFFX-2315060          2         0            0
+AFFX-2315061          1         2            2
+AFFX-2315062          1         1            1
+AFFX-2315057          2         1            1
+AFFX-2315058          1         0            0
+AFFX-2315059          0         1           -1
+AFFX-2315063          0         1            1
+AFFX-2315064          1         0            0
+AFFX-2315065          2         0            0
+AFFX-2315066          1         2            2
+> dim (datos.sin) # 262314     15
+[1] 262314     15
+> 
+> ################################################################################
+> ################################################################################
+> 
+> table (rownames (datos.sin) %in% annot[,"Probe.Set.ID"]) #50 CONTROLES
+
+ FALSE   TRUE 
+    50 262264 
+> 
+> table (annot[,"Probe.Set.ID"] %in% rownames (datos.sin)) #OK estan todos
+
+  TRUE 
+262264 
+> 
+> datos.sin <- datos.sin[annot[,"Probe.Set.ID"],]
+> datos.sin[1:3,]
+              PP1046.CEL PP1047.CEL PP.715.CEL PP.716.CEL PP.717.CEL PP.718.CEL
+SNP_A-1780619         -1          2          2          2          2         -1
+SNP_A-1780618         -1          1          2          1          1         -1
+SNP_A-1780617         -1         -1          1         -1          1         -1
+              PP.719.CEL PP.720.CEL PP.721.CEL PP.722.CEL PP.723.CEL PP.724.CEL
+SNP_A-1780619          2          2          2          2          2          2
+SNP_A-1780618          1          1          1          2          1          2
+SNP_A-1780617          1          0          0          2          1          1
+              PP.726.CEL PP907.CEL PP907DIC.CEL
+SNP_A-1780619          2         2            2
+SNP_A-1780618          1         2            2
+SNP_A-1780617          1         2           -1
+> 
+> ##datos <- matrix (NA, nrow = nrow (datos.sin), ncol = ncol (datos.sin))
+> datos <- matrix ("0\t0", nrow = nrow (datos.sin), ncol = ncol (datos.sin))
+> dimnames (datos) <- dimnames (datos.sin)
+> datos[1:3,]
+              PP1046.CEL PP1047.CEL PP.715.CEL PP.716.CEL PP.717.CEL PP.718.CEL
+SNP_A-1780619 "0\t0"     "0\t0"     "0\t0"     "0\t0"     "0\t0"     "0\t0"    
+SNP_A-1780618 "0\t0"     "0\t0"     "0\t0"     "0\t0"     "0\t0"     "0\t0"    
+SNP_A-1780617 "0\t0"     "0\t0"     "0\t0"     "0\t0"     "0\t0"     "0\t0"    
+              PP.719.CEL PP.720.CEL PP.721.CEL PP.722.CEL PP.723.CEL PP.724.CEL
+SNP_A-1780619 "0\t0"     "0\t0"     "0\t0"     "0\t0"     "0\t0"     "0\t0"    
+SNP_A-1780618 "0\t0"     "0\t0"     "0\t0"     "0\t0"     "0\t0"     "0\t0"    
+SNP_A-1780617 "0\t0"     "0\t0"     "0\t0"     "0\t0"     "0\t0"     "0\t0"    
+              PP.726.CEL PP907.CEL PP907DIC.CEL
+SNP_A-1780619 "0\t0"     "0\t0"    "0\t0"      
+SNP_A-1780618 "0\t0"     "0\t0"    "0\t0"      
+SNP_A-1780617 "0\t0"     "0\t0"    "0\t0"      
+> 
+> table (rownames (datos) == annot[,"Probe.Set.ID"])
+
+  TRUE 
+262264 
+> 
+> aleloA <- matrix (annot[,"Allele.A"], nrow = nrow (datos.sin), ncol = ncol (datos.sin))
+> aleloB <- matrix (annot[,"Allele.B"], nrow = nrow (datos.sin), ncol = ncol (datos.sin))
+> 
+> alelo0 <- matrix (paste (aleloA, aleloA, sep = "\t"), nrow = nrow (datos.sin), ncol = ncol (datos.sin))
+> alelo1 <- matrix (paste (aleloA, aleloB, sep = "\t"), nrow = nrow (datos.sin), ncol = ncol (datos.sin))
+> alelo2 <- matrix (paste (aleloB, aleloB, sep = "\t"), nrow = nrow (datos.sin), ncol = ncol (datos.sin))
+> 
+> annot[1:5, "Allele.A"]
+[1] "A" "A" "C" "A" "A"
+> annot[1:5, "Allele.B"]
+[1] "G" "G" "T" "T" "T"
+> 
+> aleloA[1:5,]
+     [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]
+[1,] "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"   "A"   "A"   "A"   "A"  
+[2,] "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"   "A"   "A"   "A"   "A"  
+[3,] "C"  "C"  "C"  "C"  "C"  "C"  "C"  "C"  "C"  "C"   "C"   "C"   "C"   "C"  
+[4,] "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"   "A"   "A"   "A"   "A"  
+[5,] "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"   "A"   "A"   "A"   "A"  
+     [,15]
+[1,] "A"  
+[2,] "A"  
+[3,] "C"  
+[4,] "A"  
+[5,] "A"  
+> aleloB[1:5,]
+     [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]
+[1,] "G"  "G"  "G"  "G"  "G"  "G"  "G"  "G"  "G"  "G"   "G"   "G"   "G"   "G"  
+[2,] "G"  "G"  "G"  "G"  "G"  "G"  "G"  "G"  "G"  "G"   "G"   "G"   "G"   "G"  
+[3,] "T"  "T"  "T"  "T"  "T"  "T"  "T"  "T"  "T"  "T"   "T"   "T"   "T"   "T"  
+[4,] "T"  "T"  "T"  "T"  "T"  "T"  "T"  "T"  "T"  "T"   "T"   "T"   "T"   "T"  
+[5,] "T"  "T"  "T"  "T"  "T"  "T"  "T"  "T"  "T"  "T"   "T"   "T"   "T"   "T"  
+     [,15]
+[1,] "G"  
+[2,] "G"  
+[3,] "T"  
+[4,] "T"  
+[5,] "T"  
+> 
+> alelo0[1:5,]
+     [,1]   [,2]   [,3]   [,4]   [,5]   [,6]   [,7]   [,8]   [,9]   [,10] 
+[1,] "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA"
+[2,] "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA"
+[3,] "C\tC" "C\tC" "C\tC" "C\tC" "C\tC" "C\tC" "C\tC" "C\tC" "C\tC" "C\tC"
+[4,] "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA"
+[5,] "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA"
+     [,11]  [,12]  [,13]  [,14]  [,15] 
+[1,] "A\tA" "A\tA" "A\tA" "A\tA" "A\tA"
+[2,] "A\tA" "A\tA" "A\tA" "A\tA" "A\tA"
+[3,] "C\tC" "C\tC" "C\tC" "C\tC" "C\tC"
+[4,] "A\tA" "A\tA" "A\tA" "A\tA" "A\tA"
+[5,] "A\tA" "A\tA" "A\tA" "A\tA" "A\tA"
+> alelo1[1:5,]
+     [,1]   [,2]   [,3]   [,4]   [,5]   [,6]   [,7]   [,8]   [,9]   [,10] 
+[1,] "A\tG" "A\tG" "A\tG" "A\tG" "A\tG" "A\tG" "A\tG" "A\tG" "A\tG" "A\tG"
+[2,] "A\tG" "A\tG" "A\tG" "A\tG" "A\tG" "A\tG" "A\tG" "A\tG" "A\tG" "A\tG"
+[3,] "C\tT" "C\tT" "C\tT" "C\tT" "C\tT" "C\tT" "C\tT" "C\tT" "C\tT" "C\tT"
+[4,] "A\tT" "A\tT" "A\tT" "A\tT" "A\tT" "A\tT" "A\tT" "A\tT" "A\tT" "A\tT"
+[5,] "A\tT" "A\tT" "A\tT" "A\tT" "A\tT" "A\tT" "A\tT" "A\tT" "A\tT" "A\tT"
+     [,11]  [,12]  [,13]  [,14]  [,15] 
+[1,] "A\tG" "A\tG" "A\tG" "A\tG" "A\tG"
+[2,] "A\tG" "A\tG" "A\tG" "A\tG" "A\tG"
+[3,] "C\tT" "C\tT" "C\tT" "C\tT" "C\tT"
+[4,] "A\tT" "A\tT" "A\tT" "A\tT" "A\tT"
+[5,] "A\tT" "A\tT" "A\tT" "A\tT" "A\tT"
+> alelo2[1:5,]
+     [,1]   [,2]   [,3]   [,4]   [,5]   [,6]   [,7]   [,8]   [,9]   [,10] 
+[1,] "G\tG" "G\tG" "G\tG" "G\tG" "G\tG" "G\tG" "G\tG" "G\tG" "G\tG" "G\tG"
+[2,] "G\tG" "G\tG" "G\tG" "G\tG" "G\tG" "G\tG" "G\tG" "G\tG" "G\tG" "G\tG"
+[3,] "T\tT" "T\tT" "T\tT" "T\tT" "T\tT" "T\tT" "T\tT" "T\tT" "T\tT" "T\tT"
+[4,] "T\tT" "T\tT" "T\tT" "T\tT" "T\tT" "T\tT" "T\tT" "T\tT" "T\tT" "T\tT"
+[5,] "T\tT" "T\tT" "T\tT" "T\tT" "T\tT" "T\tT" "T\tT" "T\tT" "T\tT" "T\tT"
+     [,11]  [,12]  [,13]  [,14]  [,15] 
+[1,] "G\tG" "G\tG" "G\tG" "G\tG" "G\tG"
+[2,] "G\tG" "G\tG" "G\tG" "G\tG" "G\tG"
+[3,] "T\tT" "T\tT" "T\tT" "T\tT" "T\tT"
+[4,] "T\tT" "T\tT" "T\tT" "T\tT" "T\tT"
+[5,] "T\tT" "T\tT" "T\tT" "T\tT" "T\tT"
+> 
+> datos[datos.sin == 0] <- alelo0[datos.sin == 0]
+> datos[datos.sin == 1] <- alelo1[datos.sin == 1]
+> datos[datos.sin == 2] <- alelo2[datos.sin == 2]
+> 
+> 
+> datos.sin[1000:1003, 1:5]
+              PP1046.CEL PP1047.CEL PP.715.CEL PP.716.CEL PP.717.CEL
+SNP_A-1782471          1          1          1          1          1
+SNP_A-1782905          0          0          0          0          0
+SNP_A-1782904          2          2          2          2          2
+SNP_A-1782903          2          0          0          0          0
+> annot[1000:1003, c("Probe.Set.ID", "Allele.A", "Allele.B")]
+               Probe.Set.ID Allele.A Allele.B
+SNP_A-1782471 SNP_A-1782471        C        G
+SNP_A-1782905 SNP_A-1782905        C        T
+SNP_A-1782904 SNP_A-1782904        A        G
+SNP_A-1782903 SNP_A-1782903        A        C
+> datos[1000:1003, 1:5]
+              PP1046.CEL PP1047.CEL PP.715.CEL PP.716.CEL PP.717.CEL
+SNP_A-1782471 "C\tG"     "C\tG"     "C\tG"     "C\tG"     "C\tG"    
+SNP_A-1782905 "C\tC"     "C\tC"     "C\tC"     "C\tC"     "C\tC"    
+SNP_A-1782904 "G\tG"     "G\tG"     "G\tG"     "G\tG"     "G\tG"    
+SNP_A-1782903 "C\tC"     "A\tA"     "A\tA"     "A\tA"     "A\tA"    
+> 
+> ################################################################################
+> 
+> ###SALVAMOS
+> save (list = "datos", file = file.path (.job$datadir, "data_processed", "all_calls_limpias.RData"))
+> save (list = "annot", file = file.path (.job$datadir, "data_processed", "anotacion.RData"))
+> 
+> 
+> ###EXIT
+> warnings ()
+NULL
+> sessionInfo ()
+R version 2.12.1 (2010-12-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=C              LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+> q ("no")
+> proc.time()
+   user  system elapsed 
+ 92.960   0.940  94.156 

@@ -1,0 +1,26 @@
+##comandos_plink.txt
+##2001-03-13 dmontaner@cipf.es
+##Comandos para rehacer el analisis de los datos de Carmen Espinos - Eduardo Calpena.
+##Solo para la familia ??? y para los arrays Nsp.
+
+
+###To generate a list of Mendel errors for SNPs and families, use the option:
+# Currently, PLINK only scans full trios for Mendel errors.
+# Families with fewer than 2 parents in the dataset will not be tested.
+
+plink --file plinkfile --mendel
+
+# which will create files:
+#      plink.mendel
+#      plink.imendel
+#      plink.fmendel
+#      plink.lmendel
+
+# The *.mendel file contains all Mendel errors (i.e. one line per error); 
+# the *.imendel file contains a summary of per-individual error rates; 
+# the *.fmendel file contains a summary of per-family error rates; 
+# the *.lmendel file contains a summary of per-SNP error rates.
+
+
+plink --file plinkfile --missing
+plink --file plinkfile --assoc

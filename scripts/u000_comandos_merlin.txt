@@ -1,0 +1,91 @@
+##comandos_merlin.txt
+##2001-03-13 dmontaner@cipf.es
+##Comandos para rehacer el analisis de los datos de Carmen Espinos - Eduardo Calpena.
+##Solo para la familia ??? y para los arrays Nsp.
+
+
+################################################################################
+###                                Merlin PED                                ###
+################################################################################
+
+## all the information that is necessary to reconstruct individual relationships in a 
+## pedigree file can be summarized in five items:
+
+##   family identifier
+##   individual identifier
+##   link to each parent (if available) 
+##   indicator of each individual's sex: recoding sexes as 2 (female) and 1 (male)
+
+## FAMILY     PERSON   FATHER   MOTHER   SEX
+
+## text identifiers are usually replaced by unique numeric values.
+
+## Usually the five standard columns are followed by various types of genetic data, 
+## including phenotypes for discrete and quantitative traits and marker genotypes.
+
+## Disease status is usually encoded in a single column as
+
+##    U or 1 for unaffecteds, 
+##    A or 2 for affecteds, and 
+##    X or 0 for missing phenotypes.
+
+## 0 como missing vale para el estatus y para el genotipo
+
+
+################################################################################
+###                                Merlin DAT                                ###
+################################################################################
+
+## Since each pedigree file has a unique structure (apart from the first five columns),
+## its contents must be described in a companion data file.
+
+## The data file includes one row per data item in the pedigree file,
+## indicating the data type encoded as:
+
+##   M - marker
+##   A - affection status
+##   T - Quantitative Trait
+##   C - Covariate
+
+## and providing a one-word label for each item.
+
+
+################################################################################
+###                                Merlin MAP                                ###
+################################################################################
+
+## To analyse genetic markers, MERLIN requires information on their chromosomal location.
+## This is usually provided in a map file.
+
+## this file has one line per marker with three columns, indicating:
+##   chromosome  (parece que vale la notacion X para el cromosoma X)
+##   marker name
+##   position (in centiMorgans)
+
+## CHROMOSOME     MARKER      POSITION
+
+## If you are using sex-specific maps...
+
+## The data file and map file can include different sets of markers,
+## but markers that are absent from the map file will be ignored by MERLIN.
+
+## ... allows MERLIN to analyse multiple chromosomes in a single run.
+
+
+################################################################################
+
+pedstats -d merlinfile.dat -p merlinfile.ped > salida_pedstats_0.txt
+
+
+pedstats -d datos.dat -p datos.ped                                            > salida_pedstats.txt
+merlin   -d datos.dat -p datos.ped -m datos.map --error                       > salida_merlin_error.txt
+pedwipe  -d datos.dat -p datos.ped                                            > salida_pedwipe.txt
+merlin   -d wiped.dat -p wiped.ped -m datos.map --model modelo.txt --tabulate > salida_merlin.txt
+
+
+
+awk -F'\t' '{print NF}' wiped.ped | sort | uniq
+
+
+
+

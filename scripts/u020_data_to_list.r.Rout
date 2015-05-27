@@ -1,0 +1,428 @@
+
+R version 2.12.1 (2010-12-16)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##u020_data_to_list.r
+> ##2011-03-13 dmontaner@cipf.es
+> ##analisis de datos para Carmen Espinos y Eduardo Calpena.
+> ##Eliminamos errores mendelianos.
+> ##Formateamos los datos como una lista segun los cromosomas.
+> 
+> date ()
+[1] "Sun Mar 13 17:15:11 2011"
+> Sys.info ()[c("nodename", "user")]
+     nodename          user 
+"davidlaptop"   "dmontaner" 
+> commandArgs ()
+[1] "/usr/lib64/R/bin/exec/R" "-f"                     
+[3] "u020_data_to_list.r"     "--restore"              
+[5] "--save"                  "--no-readline"          
+[7] "--no-save"               "--no-restore"           
+> rm (list = ls ())
+> R.version.string #"R version 2.12.1 (2010-12-16)"
+[1] "R version 2.12.1 (2010-12-16)"
+> #library (kinship); packageDescription ("kinship", fields = "Version") #"1.1.0-23"
+> 
+> try (source (".job.r")); try (.job)
+
+.job.r has been sourced
+
+$owner
+[1] "eduardo_calpena"
+
+$datadir
+[1] "~/datos/2011/eduardo_calpena"
+
+$docsdir
+[1] "~/trabajos/2011/eduardo_calpena"
+
+$scriptdir
+[1] "~/trabajos/2011/eduardo_calpena/scripts"
+
+$sinfodir
+[1] "~/trabajos/2011/eduardo_calpena/sampleinfo"
+
+$plotsdir
+[1] "~/datos/2011/eduardo_calpena/data_results/from_script_plots"
+
+$testmode
+[1] FALSE
+
+$dec
+[1] "."
+
+> 
+> ###DATOS
+> load (file = file.path (.job$datadir, "data_processed", "ped.RData"))
+> load (file = file.path (.job$datadir, "data_processed", "datos_filtrados.RData"))
+> load (file = file.path (.job$datadir, "data_processed", "errores_mendel_merlin.RData"))
+> 
+> ls ()
+[1] "annot"      "datos"      "men.merlin" "ped"       
+> 
+> dim (ped)
+[1] 18  8
+> dim (datos)
+[1] 198323     14
+> dim (annot)
+[1] 198323     29
+> length (unique (men.merlin))
+[1] 44377
+> length (men.merlin)
+[1] 44377
+> 
+> table (colnames (datos) %in% rownames (ped)) ##OK
+
+TRUE 
+  14 
+> table (rownames (datos)  ==  rownames (annot)) ##OK
+
+  TRUE 
+198323 
+> 
+> table (annot[,"Chromosome"])
+
+    1    10    11    12    13    14    15    16    17    18    19     2    20 
+14915 10739  9963  9739  8306  6112  5213  5381  3676  6163  2026 16796  4410 
+   21    22     3     4     5     6     7     8     9     X 
+ 2939  1858 13836 14364 12959 12893 10525 11307  9048  5155 
+> 
+> ################################################################################
+> 
+> 
+> ###Eliminamos los Errores Mendelianos
+> 
+> error <- rownames (datos) %in% men.merlin
+> 
+> datos <- datos[!error,]
+> annot <- annot[!error,]
+> 
+> table (colnames (datos) %in% rownames (ped)) ##OK
+
+TRUE 
+  14 
+> table (rownames (datos)  ==  rownames (annot)) ##OK
+
+  TRUE 
+153946 
+> 
+> ################################################################################
+> 
+> 
+> ###Incluimos los missing y ordenamos segun el pedigree.
+> 
+> faltan <- setdiff (rownames (ped), colnames (datos))
+> faltan
+[1] "id300" "id400" "id921" "id923"
+> 
+> zeros <- matrix ("0\t0", nrow = nrow (datos), ncol = length (faltan))
+> colnames (zeros) <- faltan
+> dim (zeros)
+[1] 153946      4
+> zeros[1:3,]
+     id300  id400  id921  id923 
+[1,] "0\t0" "0\t0" "0\t0" "0\t0"
+[2,] "0\t0" "0\t0" "0\t0" "0\t0"
+[3,] "0\t0" "0\t0" "0\t0" "0\t0"
+> 
+> datos <- cbind (datos, zeros)
+> datos <- datos[,rownames (ped)]
+> 
+> dim (datos)
+[1] 153946     18
+> dim (ped)
+[1] 18  8
+> 
+> table (colnames (datos) == rownames (ped)) ##OK
+
+TRUE 
+  18 
+> 
+> ################################################################################
+> 
+> 
+> ###Pasamos a formato de lista
+> 
+> cromosomas <- sort (unique (annot[,"Chromosome"]))
+> cromosomas
+ [1] "1"  "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "2"  "20" "21" "22"
+[16] "3"  "4"  "5"  "6"  "7"  "8"  "9"  "X" 
+> 
+> latos <- list ()
+> lanot <- list ()
+> ##
+> for (cro in cromosomas) {
++   cat ("\n")
++   print (cro)
++   ##
++   touse <- annot[,"Chromosome"] == cro
++   print (sum (touse))
++   ##
++   latos[[cro]] <- datos[touse,]
++   lanot[[cro]] <- annot[touse,]
++ }
+
+[1] "1"
+[1] 11708
+
+[1] "10"
+[1] 8481
+
+[1] "11"
+[1] 7720
+
+[1] "12"
+[1] 7572
+
+[1] "13"
+[1] 6553
+
+[1] "14"
+[1] 4834
+
+[1] "15"
+[1] 4062
+
+[1] "16"
+[1] 4334
+
+[1] "17"
+[1] 2902
+
+[1] "18"
+[1] 4807
+
+[1] "19"
+[1] 1599
+
+[1] "2"
+[1] 13160
+
+[1] "20"
+[1] 3481
+
+[1] "21"
+[1] 2259
+
+[1] "22"
+[1] 1503
+
+[1] "3"
+[1] 10927
+
+[1] "4"
+[1] 11336
+
+[1] "5"
+[1] 10057
+
+[1] "6"
+[1] 10137
+
+[1] "7"
+[1] 8018
+
+[1] "8"
+[1] 8934
+
+[1] "9"
+[1] 7183
+
+[1] "X"
+[1] 2379
+> 
+> names (latos)
+ [1] "1"  "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "2"  "20" "21" "22"
+[16] "3"  "4"  "5"  "6"  "7"  "8"  "9"  "X" 
+> names (lanot)
+ [1] "1"  "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "2"  "20" "21" "22"
+[16] "3"  "4"  "5"  "6"  "7"  "8"  "9"  "X" 
+> 
+> latos.ids <- lapply (latos, rownames)
+> lanot.ids <- lapply (lanot, rownames)
+> 
+> identical (latos.ids, lanot.ids) ##OK
+[1] TRUE
+> 
+> latos.col <- t (sapply (latos, colnames))
+> latos.col
+   [,1]    [,2]    [,3]     [,4]    [,5]    [,6]    [,7]    [,8]    [,9]   
+1  "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+10 "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+11 "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+12 "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+13 "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+14 "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+15 "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+16 "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+17 "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+18 "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+19 "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+2  "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+20 "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+21 "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+22 "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+3  "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+4  "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+5  "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+6  "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+7  "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+8  "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+9  "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+X  "id300" "id400" "id1046" "id921" "id923" "id907" "id715" "id716" "id717"
+   [,10]   [,11]   [,12]   [,13]   [,14]   [,15]   [,16]   [,17]   [,18]   
+1  "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+10 "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+11 "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+12 "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+13 "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+14 "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+15 "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+16 "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+17 "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+18 "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+19 "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+2  "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+20 "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+21 "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+22 "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+3  "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+4  "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+5  "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+6  "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+7  "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+8  "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+9  "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+X  "id718" "id719" "id720" "id721" "id722" "id723" "id724" "id726" "id1047"
+> 
+> table (latos.col[1,] == rownames (ped))
+
+TRUE 
+  18 
+> 
+> latos[["2"]][1:3,]
+           id300  id400  id1046 id921  id923  id907  id715  id716  id717 
+rs13032261 "0\t0" "0\t0" "A\tC" "0\t0" "0\t0" "A\tC" "A\tA" "A\tA" "A\tC"
+rs2862022  "0\t0" "0\t0" "C\tC" "0\t0" "0\t0" "C\tC" "C\tC" "C\tC" "C\tC"
+rs6729754  "0\t0" "0\t0" "G\tG" "0\t0" "0\t0" "0\t0" "C\tG" "C\tC" "C\tG"
+           id718  id719  id720  id721  id722  id723  id724  id726  id1047
+rs13032261 "A\tC" "C\tC" "C\tC" "A\tC" "C\tC" "A\tC" "C\tC" "A\tC" "A\tC"
+rs2862022  "C\tC" "C\tC" "C\tC" "C\tC" "C\tC" "C\tC" "C\tC" "C\tC" "C\tC"
+rs6729754  "C\tG" "C\tC" "0\t0" "C\tG" "C\tG" "C\tG" "G\tG" "C\tG" "0\t0"
+> lanot[["2"]][1:3,]
+            Probe.Set.ID dbSNP.RS.ID Chromosome Physical.Position Strand
+rs13032261 SNP_A-1780370  rs13032261          2         227268591      +
+rs2862022  SNP_A-1780767   rs2862022          2          80388510      -
+rs6729754  SNP_A-1780475   rs6729754          2          59440762      -
+           ChrX.pseudo.autosomal.region.1 Cytoband
+rs13032261                              0    q36.3
+rs2862022                               0      p12
+rs6729754                               0    p16.1
+                                           Flank Allele.A Allele.B
+rs13032261 ggataatggcataaca[A/C]cctttctcatgaacca        A        C
+rs2862022  ggatcctttttaatac[C/T]acagcgttcgtactgt        C        T
+rs6729754  ggatagatttttgaca[C/G]agaatattttgacttc        C        G
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         Associated.Gene
+rs13032261                                                                                                                                                                                         ENST00000272907 // downstream // 749857 // Hs.224409 // KIAA1486 // 57624 // KIAA1486 /// ENST00000305123 // downstream // 331165 // Hs.471508 // IRS1 // 3667 // insulin receptor substrate 1 /// NM_020864 // downstream // 749857 // Hs.224409 // KIAA1486 // 57624 // KIAA1486 /// NM_005544 // downstream // 327442 // Hs.471508 // IRS1 // 3667 // insulin receptor substrate 1
+rs2862022  ENST00000361291 // --- // 0 // Hs.167368 // CTNNA2 // 1496 // catenin (cadherin-associated protein), alpha 2 /// ENST00000496558 // --- // 0 // Hs.167368 // CTNNA2 // 1496 // catenin (cadherin-associated protein), alpha 2 /// ENST00000466387 // --- // 0 // Hs.167368 // CTNNA2 // 1496 // catenin (cadherin-associated protein), alpha 2 /// NM_001164883 // intron // 0 // Hs.167368 // CTNNA2 // 1496 // catenin (cadherin-associated protein), alpha 2 /// NM_004389 // intron // 0 // Hs.167368 // CTNNA2 // 1496 // catenin (cadherin-associated protein), alpha 2
+rs6729754                                                              ENST00000309828 // downstream // 960955 // Hs.516023 // EIF3F // 8665 // eukaryotic translation initiation factor 3, subunit F /// ENST00000356842 // downstream // 1237539 // Hs.370549 // BCL11A // 53335 // B-cell CLL/lymphoma 11A (zinc finger protein) /// NM_003754 // downstream // 960955 // Hs.516023 // EIF3F // 8665 // eukaryotic translation initiation factor 3, subunit F /// NM_018014 // downstream // 1237539 // Hs.370549 // BCL11A // 53335 // B-cell CLL/lymphoma 11A (zinc finger protein)
+                                                                                                                                                                                Genetic.Map
+rs13032261 229.421231502017 // D2S1363 // D2S2389 // --- // --- /// 226.976029908509 // D2S2390 // D2S2308 // AFM127XB4 // AFMB354WE5 /// 211.66901395737 // --- // D2S2308 // 64543 // ---
+rs2862022     104.413269355346 // D2S253 // D2S2180 // --- // --- /// 102.452276086485 // D2S139 // D2S2180 // AFM177XH4 // AFM161YH10 /// 98.9566051875519 // --- // --- // 60139 // 53390
+rs6729754       82.2206468454444 // D2S2183 // D2S393 // --- // --- /// 78.4537807619583 // D2S2183 // D2S1278 // AFMA191XD1 // UT8053 /// 77.9297222181632 // --- // --- // 40138 // 48703
+                                                             Microsatellite
+rs13032261 D2S2308 // upstream // 24457 /// D2S1333 // downstream // 239181
+rs2862022   D2S1708E // upstream // 1480 /// D2S2191 // downstream // 44184
+rs6729754     D2S393 // upstream // 70914 /// D2S406 // downstream // 71724
+                 Fragment.Enzyme.Type.Length.Start.Stop
+rs13032261 NspI // --- // 565 // 227268572 // 227269136
+rs2862022    NspI // --- // 414 // 80388291 // 80388704
+rs6729754   NspI // --- // 1072 // 59440172 // 59441243
+                                                                                                                             Allele.Frequencies
+rs13032261           0.67 // 0.33 // CEPH /// 0.233333 // 0.766667 // Han Chinese /// 0.134146 // 0.865854 // Japanese /// 0.5 // 0.5 // Yoruba
+rs2862022  0.98 // 0.02 // CEPH /// 0.877778 // 0.122222 // Han Chinese /// 0.922222 // 0.077778 // Japanese /// 0.542553 // 0.457447 // Yoruba
+rs6729754  0.802083 // 0.197917 // CEPH /// 0.711111 // 0.288889 // Han Chinese /// 0.761364 // 0.238636 // Japanese /// 0.67 // 0.33 // Yoruba
+                                                                      Heterozygous.Allele.Frequencies
+rs13032261      0.4422 // CEPH /// 0.357778 // Han Chinese /// 0.232302 // Japanese /// 0.5 // Yoruba
+rs2862022  0.0392 // CEPH /// 0.214568 // Han Chinese /// 0.143457 // Japanese /// 0.496378 // Yoruba
+rs6729754  0.317491 // CEPH /// 0.410864 // Han Chinese /// 0.363378 // Japanese /// 0.4422 // Yoruba
+                                            Number.of.individuals.Number.of.chromosomes
+rs13032261 50.0 // CEPH /// 45.0 // Han Chinese /// 41.0 // Japanese /// 49.0 // Yoruba
+rs2862022  50.0 // CEPH /// 45.0 // Han Chinese /// 45.0 // Japanese /// 47.0 // Yoruba
+rs6729754  48.0 // CEPH /// 45.0 // Han Chinese /// 44.0 // Japanese /// 50.0 // Yoruba
+           In.Hapmap Strand.Versus.dbSNP
+rs13032261       YES                same
+rs2862022        YES             reverse
+rs6729754        YES                same
+                                                                                                                                                                                                                                                                                                                                                                         Copy.Number.Variation
+rs13032261                                                                                                                                                                                                                                                                                                                                                                                 ---
+rs2862022                                                                                                                                                                                                                                                                Variation_47976 // chr2:80031690-80431887 // SNP genotyping analysis // 18971310 // Gusev et al. (2009) // CopyNumber
+rs6729754  Variation_2386 // chr2:58394543-61340450 // Affymetrix 500K EA SNP Mapping Array // 17122850 // Redon et al. (2006) // CopyNumber /// Variation_3361 // chr2:58398297-61282740 // BAC Array CGH // 17122850 // Redon et al. (2006) // CopyNumber /// Variation_8373 // chr2:58410949-61295473 // Affymetrix 500K SNP Mapping Array // 17911159 // Pinto et al. (2007) // CopyNumber
+           Probe.Count ChrX.pseudo.autosomal.region.2 In.Final.List
+rs13032261          12                              0           YES
+rs2862022           12                              0           YES
+rs6729754           12                              0           YES
+                                                                       Minor.Allele
+rs13032261 --- // CEPH /// --- // Han Chinese /// --- // Japanese /// --- // Yoruba
+rs2862022  --- // CEPH /// --- // Han Chinese /// --- // Japanese /// --- // Yoruba
+rs6729754  --- // CEPH /// --- // Han Chinese /// --- // Japanese /// --- // Yoruba
+                                                                             Minor.Allele.Frequency
+rs13032261      0.33 // CEPH /// 0.233333 // Han Chinese /// 0.134146 // Japanese /// 0.5 // Yoruba
+rs2862022  0.02 // CEPH /// 0.122222 // Han Chinese /// 0.077778 // Japanese /// 0.457447 // Yoruba
+rs6729754  0.197917 // CEPH /// 0.288889 // Han Chinese /// 0.238636 // Japanese /// 0.33 // Yoruba
+                                     X..GC
+rs13032261 0.347 // StyI /// 0.356 // NspI
+rs2862022  0.339 // StyI /// 0.333 // NspI
+rs6729754  0.379 // StyI /// 0.358 // NspI
+                                                                                                                                                                                                                                                                                                                                                    OMIM
+rs13032261 147545 // Coronary artery disease // --- // ENST00000305123 // downstream /// 147545 // Coronary artery disease // --- // NM_005544 // downstream /// 147545 // Diabetes mellitus, noninsulin-dependent // 125853 // ENST00000305123 // downstream /// 147545 // Diabetes mellitus, noninsulin-dependent // 125853 // NM_005544 // downstream
+rs2862022                                                                                                                                                                                                                                                                                                                                            ---
+rs6729754                                                                                                                                                                                                                                                                                                                                            ---
+           deCODE.genetic.map  posicion
+rs13032261          229.42123 227268591
+rs2862022           104.41327  80388510
+rs6729754            82.22065  59440762
+> 
+> ################################################################################
+> 
+> ###SALVAMOS
+> save (list = c("latos", "lanot", "ped", "cromosomas"), file = file.path (.job$datadir, "data_processed", "datos_por_cromosoma.RData"))
+> 
+> 
+> ###EXIT
+> warnings ()
+NULL
+> sessionInfo ()
+R version 2.12.1 (2010-12-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=C              LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+> q ("no")
+> proc.time()
+   user  system elapsed 
+ 39.830   0.280  40.227 

@@ -1,0 +1,272 @@
+
+R version 2.12.1 (2010-12-16)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##u010_estudio_eroresm_merlin.r
+> ##2011-03-12 dmontaner@cipf.es
+> ##analisis de datos para Carmen Espinos y Eduardo Calpena.
+> ##Vemos los ERRORES Mendelianos detectados por el pedstats del Merlin
+> 
+> date ()
+[1] "Sun Mar 13 15:33:36 2011"
+> Sys.info ()[c("nodename", "user")]
+     nodename          user 
+"davidlaptop"   "dmontaner" 
+> commandArgs ()
+[1] "/usr/lib64/R/bin/exec/R"        "-f"                            
+[3] "u010_estudio_erroresm_merlin.r" "--restore"                     
+[5] "--save"                         "--no-readline"                 
+[7] "--no-save"                      "--no-restore"                  
+> rm (list = ls ())
+> R.version.string #"R version 2.12.1 (2010-12-16)"
+[1] "R version 2.12.1 (2010-12-16)"
+> #library (kinship); packageDescription ("kinship", fields = "Version") #"1.1.0-23"
+> 
+> try (source (".job.r")); try (.job)
+
+.job.r has been sourced
+
+$owner
+[1] "eduardo_calpena"
+
+$datadir
+[1] "~/datos/2011/eduardo_calpena"
+
+$docsdir
+[1] "~/trabajos/2011/eduardo_calpena"
+
+$scriptdir
+[1] "~/trabajos/2011/eduardo_calpena/scripts"
+
+$sinfodir
+[1] "~/trabajos/2011/eduardo_calpena/sampleinfo"
+
+$plotsdir
+[1] "~/datos/2011/eduardo_calpena/data_results/from_script_plots"
+
+$testmode
+[1] FALSE
+
+$dec
+[1] "."
+
+> 
+> ###DATOS
+> load (file = file.path (.job$datadir, "data_processed", "ped.RData"))
+> load (file = file.path (.job$datadir, "data_processed", "datos_filtrados.RData"))
+> load (file = file.path (.job$datadir, "data_processed", "errores_mendel_plink.RData"))
+> 
+> dim (ped)
+[1] 18  8
+> dim (datos)
+[1] 198323     14
+> 
+> table (colnames (datos) %in% rownames (ped)) ##OK
+
+TRUE 
+  14 
+> 
+> ################################################################################
+> 
+> 
+> ##Datos Errores Mendelianos - pedstats Merlin
+> 
+> lineas <- readLines (con = file.path (.job$datadir, "data_processed", "merlin", "salida_pedstats_0.txt"))
+> length (lineas)
+[1] 61879
+> lineas[100:110]
+ [1] "rs2741774 - Fam 266: Child 726 [T/T] has parents [T/T]*[C/C]" 
+ [2] "rs2741774 - Fam 266: Child 1047 [T/T] has parents [T/T]*[C/C]"
+ [3] "rs11738462 - Fam 266: Child 726 [T/C] has parents [C/C]*[C/C]"
+ [4] "rs10815959 - Fam 266: Child 724 [A/A] has parents [G/G]*[A/A]"
+ [5] "rs10815959 - Fam 266: Child 726 [G/A] has parents [G/G]*[G/G]"
+ [6] "rs909379 - Fam 266: Child 724 [T/T] has mother [C/C]"         
+ [7] "rs909379 - Fam 266: Child 726 [C/C] has father [T/T]"         
+ [8] "rs1166974 - Fam 266: Child 716 [C/C] has mother [A/A]"        
+ [9] "rs1166974 - Fam 266: Child 726 [A/A] has parents [C/C]*[C/A]" 
+[10] "rs1166974 - Fam 266: Child 1047 [A/A] has parents [C/C]*[C/A]"
+[11] "rs11154154 - Fam 266: Child 726 [T/T] has mother [C/C]"       
+> 
+> lineas  <- grep  (pattern = "- Fam", lineas, ignore.case = FALSE, value = TRUE)
+> length (lineas)
+[1] 61823
+> lineas[1:3]
+[1] "rs1705415 - Fam 266: Child 1047 [T/T] has parents [T/T]*[C/C]"
+[2] "rs4501824 - Fam 266: Child 726 [C/C] has father [G/G]"        
+[3] "rs7730126 - Fam 266: Child 726 [G/G] has mother [A/A]"        
+> 
+> men <- matrix (unlist (strsplit (lineas, split = " - ")), ncol = 2, byrow = TRUE)
+> men[1:10,]
+      [,1]         [,2]                                               
+ [1,] "rs1705415"  "Fam 266: Child 1047 [T/T] has parents [T/T]*[C/C]"
+ [2,] "rs4501824"  "Fam 266: Child 726 [C/C] has father [G/G]"        
+ [3,] "rs7730126"  "Fam 266: Child 726 [G/G] has mother [A/A]"        
+ [4,] "rs10759862" "Fam 266: Child 724 [G/A] has parents [A/A]*[A/A]" 
+ [5,] "rs7850100"  "Fam 266: Child 726 [T/G] has parents [G/G]*[G/G]" 
+ [6,] "rs568359"   "Fam 266: Child 726 [G/G] has parents [G/G]*[A/A]" 
+ [7,] "rs568359"   "Fam 266: Child 1047 [A/A] has parents [G/G]*[A/A]"
+ [8,] "rs3740547"  "Fam 266: Child 726 [G/A] has parents [A/A]*[A/A]" 
+ [9,] "rs3740547"  "Fam 266: Child 1047 [G/A] has parents [A/A]*[A/A]"
+[10,] "rs10746194" "Fam 266: Child 726 [A/A] has parents [C/C]*[A/A]" 
+> dim (men)
+[1] 61823     2
+> 
+> men.merlin <- unique (men[,1])
+> length (men.merlin) #44377
+[1] 44377
+> 
+> 
+> men[1,]
+[1] "rs1705415"                                        
+[2] "Fam 266: Child 1047 [T/T] has parents [T/T]*[C/C]"
+> datos["rs1705415",]
+id1046 id1047  id715  id716  id717  id718  id719  id720  id721  id722  id723 
+"C\tC" "T\tT" "T\tT" "T\tT" "T\tT" "T\tT" "C\tT" "T\tT" "T\tT" "T\tT" "T\tT" 
+ id724  id726  id907 
+"C\tT" "C\tT" "0\t0" 
+> 
+> men[100,]
+[1] "rs11153413"                               
+[2] "Fam 266: Child 717 [G/G] has mother [A/A]"
+> datos["rs11153413",]
+id1046 id1047  id715  id716  id717  id718  id719  id720  id721  id722  id723 
+"A\tA" "A\tA" "G\tG" "A\tG" "G\tG" "0\t0" "A\tA" "A\tA" "A\tA" "A\tA" "A\tA" 
+ id724  id726  id907 
+"A\tA" "A\tA" "A\tG" 
+> 
+> ################################################################################
+> 
+> ##comparamos con el Plink
+> 
+> length (men.plink)
+[1] 42334
+> length (men.merlin)
+[1] 44377
+> 
+> length (intersect (men.plink, men.merlin))
+[1] 42334
+> 
+> setdiff (men.plink, men.merlin) #OK todos los detectados por PLINK estan tambien en MERLIN
+character(0)
+> 
+> solo.merlin <- setdiff (men.merlin, men.plink) #OK todos los detectados por PLINK estan tambien en MERLIN
+> length (solo.merlin)
+[1] 2043
+> 
+> table (annot[solo.merlin,"Chromosome"]) ##OBS: todos los no detectados estan en el X
+
+   X 
+2043 
+> table (annot[men.plink,"Chromosome"])   ##OBS: pero el plink SI detecta algunos en el X
+
+   1   10   11   12   13   14   15   16   17   18   19    2   20   21   22    3 
+3207 2258 2243 2167 1753 1278 1151 1047  774 1356  427 3636  929  680  355 2909 
+   4    5    6    7    8    9    X 
+3028 2902 2756 2507 2373 1865  733 
+> 
+> 
+> touse <- men[,1] %in% solo.merlin
+> 
+> men[touse,][1:10,]
+      [,1]         [,2]                                               
+ [1,] "rs5985612"  "Fam 266: Child 726 [G/G] has father [A/A]"        
+ [2,] "rs845445"   "Fam 266: Child 724 [G/G] has parents [C/C]*[G/G]" 
+ [3,] "rs4457503"  "Fam 266: Child 724 [T/T] has parents [C/C]*[T/T]" 
+ [4,] "rs4457503"  "Fam 266: Child 1047 [C/C] has father [T/T]"       
+ [5,] "rs5974328"  "Fam 266: Child 726 [T/T] has parents [C/C]*[T/C]" 
+ [6,] "rs5974328"  "Fam 266: Child 1047 [T/T] has parents [C/C]*[T/C]"
+ [7,] "rs6634846"  "Fam 266: Child 724 [A/A] has parents [C/C]*[C/A]" 
+ [8,] "rs6634846"  "Fam 266: Child 1047 [A/A] has parents [C/C]*[C/A]"
+ [9,] "rs17284817" "Fam 266: Child 724 [G/G] has parents [A/A]*[G/G]" 
+[10,] "rs17284817" "Fam 266: Child 726 [A/A] has parents [G/G]*[A/A]" 
+> datos["rs5985612",]
+id1046 id1047  id715  id716  id717  id718  id719  id720  id721  id722  id723 
+"0\t0" "A\tA" "G\tG" "G\tG" "G\tG" "A\tA" "G\tG" "G\tG" "G\tG" "G\tG" "G\tG" 
+ id724  id726  id907 
+"G\tG" "G\tG" "G\tG" 
+> datos["rs845445",]
+id1046 id1047  id715  id716  id717  id718  id719  id720  id721  id722  id723 
+"0\t0" "0\t0" "G\tG" "G\tG" "G\tG" "G\tG" "G\tG" "G\tG" "G\tG" "G\tG" "G\tG" 
+ id724  id726  id907 
+"G\tG" "G\tG" "C\tC" 
+> datos["rs5974328",]
+id1046 id1047  id715  id716  id717  id718  id719  id720  id721  id722  id723 
+"C\tT" "T\tT" "T\tT" "C\tT" "T\tT" "C\tC" "C\tC" "C\tT" "C\tT" "C\tC" "0\t0" 
+ id724  id726  id907 
+"T\tT" "T\tT" "T\tT" 
+> annot["rs845445",]
+          Probe.Set.ID dbSNP.RS.ID Chromosome Physical.Position Strand
+rs845445 SNP_A-1781048    rs845445          X           9440067      -
+         ChrX.pseudo.autosomal.region.1 Cytoband
+rs845445                              0   p22.31
+                                         Flank Allele.A Allele.B
+rs845445 ggatgcagtttcaaca[C/G]acccgaaggaaggttt        C        G
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  Associated.Gene
+rs845445 ENST00000407597 // --- // 0 // Hs.495656 // TBL1X // 6907 // transducin (beta)-like 1X-linked /// ENST00000380961 // --- // 0 // Hs.495656 // TBL1X // 6907 // transducin (beta)-like 1X-linked /// ENST00000424279 // --- // 0 // Hs.495656 // TBL1X // 6907 // transducin (beta)-like 1X-linked /// ENST00000217964 // --- // 0 // Hs.495656 // TBL1X // 6907 // transducin (beta)-like 1X-linked /// NM_001139466 // intron // 0 // Hs.495656 // TBL1X // 6907 // transducin (beta)-like 1X-linked /// NM_001139467 // intron // 0 // Hs.495656 // TBL1X // 6907 // transducin (beta)-like 1X-linked /// NM_001139468 // intron // 0 // Hs.495656 // TBL1X // 6907 // transducin (beta)-like 1X-linked /// NM_005647 // intron // 0 // Hs.495656 // TBL1X // 6907 // transducin (beta)-like 1X-linked
+                                                                                                                                                                               Genetic.Map
+rs845445 17.6320600485942 // DXS1223 // DXS7103 // --- // --- /// 17.3337446960462 // DXYS231 // DXS1043 // AFMA137XG9 // AFM126ZD2 /// 17.6944366134356 // --- // DXS8051 // 92363 // ---
+                                                          Microsatellite
+rs845445 DXS8051 // upstream // 59162 /// DXS8206 // downstream // 60303
+           Fragment.Enzyme.Type.Length.Start.Stop
+rs845445 NspI // --- // 738 // 9439384 // 9440121
+                                                                                                               Allele.Frequencies
+rs845445 0.4 // 0.6 // CEPH /// 0.840909 // 0.159091 // Han Chinese /// 0.755556 // 0.244444 // Japanese /// 0.3 // 0.7 // Yoruba
+                                                              Heterozygous.Allele.Frequencies
+rs845445 0.48 // CEPH /// 0.267562 // Han Chinese /// 0.369383 // Japanese /// 0.42 // Yoruba
+                                          Number.of.individuals.Number.of.chromosomes
+rs845445 50.0 // CEPH /// 44.0 // Han Chinese /// 45.0 // Japanese /// 50.0 // Yoruba
+         In.Hapmap Strand.Versus.dbSNP
+rs845445       YES                same
+                                                                                                                                                                                                         Copy.Number.Variation
+rs845445 Variation_2275 // chrX:9358753-9500420 // BAC Array CGH // 16826518 // Locke et al. (2006) // CopyNumber /// Variation_4144 // chrX:9329090-9500420 // BAC Array CGH // 17122850 // Redon et al. (2006) // CopyNumber
+         Probe.Count ChrX.pseudo.autosomal.region.2 In.Final.List
+rs845445          12                              0           YES
+                                                                     Minor.Allele
+rs845445 --- // CEPH /// --- // Han Chinese /// --- // Japanese /// --- // Yoruba
+                                                                     Minor.Allele.Frequency
+rs845445 0.4 // CEPH /// 0.159091 // Han Chinese /// 0.244444 // Japanese /// 0.3 // Yoruba
+                                   X..GC OMIM deCODE.genetic.map posicion
+rs845445 0.456 // StyI /// 0.489 // NspI  ---           17.63206  9440067
+> 
+> 
+> ###SAL
+> save (list = "men.merlin", file = file.path (.job$datadir, "data_processed", "errores_mendel_merlin.RData"))
+> 
+> 
+> ###EXIT
+> warnings ()
+NULL
+> sessionInfo ()
+R version 2.12.1 (2010-12-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=C              LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+> q ("no")
+> proc.time()
+   user  system elapsed 
+ 26.600   0.200  26.882 

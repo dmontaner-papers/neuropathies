@@ -1,0 +1,401 @@
+
+R version 2.12.1 (2010-12-16)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##s050_clean_data.r
+> ##2011-03-11 dmontaner@cipf.es
+> ##analisis de datos para Carmen Espinos y Eduardo Calpena.
+> ##Filtramos los SNPs que vamos a usar en el Merlin
+> 
+> date ()
+[1] "Sun Mar 13 13:14:16 2011"
+> Sys.info ()[c("nodename", "user")]
+     nodename          user 
+"davidlaptop"   "dmontaner" 
+> commandArgs ()
+[1] "/usr/lib64/R/bin/exec/R" "-f"                     
+[3] "s050_clean_data.r"       "--restore"              
+[5] "--save"                  "--no-readline"          
+[7] "--no-save"               "--no-restore"           
+> rm (list = ls ())
+> R.version.string #"R version 2.12.1 (2010-12-16)"
+[1] "R version 2.12.1 (2010-12-16)"
+> #library (kinship); packageDescription ("kinship", fields = "Version") #"1.1.0-23"
+> 
+> try (source (".job.r")); try (.job)
+
+.job.r has been sourced
+
+$owner
+[1] "eduardo_calpena"
+
+$datadir
+[1] "~/datos/2011/eduardo_calpena"
+
+$docsdir
+[1] "~/trabajos/2011/eduardo_calpena"
+
+$scriptdir
+[1] "~/trabajos/2011/eduardo_calpena/scripts"
+
+$sinfodir
+[1] "~/trabajos/2011/eduardo_calpena/sampleinfo"
+
+$plotsdir
+[1] "~/datos/2011/eduardo_calpena/data_results/from_script_plots"
+
+$testmode
+[1] FALSE
+
+$dec
+[1] "."
+
+> 
+> ###DATOS
+> load (file = file.path (.job$datadir, "data_processed", "ped.RData"))
+> load (file = file.path (.job$datadir, "data_processed", "all_calls_limpias.RData"))
+> load (file = file.path (.job$datadir, "data_processed", "anotacion.RData"))
+> load (file = file.path (.job$datadir, "data_processed", "quality_control.RData"))
+> 
+> dim (ped)
+[1] 18  8
+> dim (annot)
+[1] 262264     27
+> dim (datos)
+[1] 262264     15
+> dim (snp.qc)
+[1] 262314      2
+> 
+> annot[1:3,]
+               Probe.Set.ID dbSNP.RS.ID Chromosome Physical.Position Strand
+SNP_A-1780619 SNP_A-1780619  rs17106009          1          50661138      -
+SNP_A-1780618 SNP_A-1780618    rs233978          4         104675512      +
+SNP_A-1780617 SNP_A-1780617   rs9965312         18          26599922      +
+              ChrX.pseudo.autosomal.region.1 Cytoband
+SNP_A-1780619                              0      p33
+SNP_A-1780618                              0      q24
+SNP_A-1780617                              0    q12.1
+                                              Flank Allele.A Allele.B
+SNP_A-1780619 ggatattgtgtgagga[A/G]taagcccacctgtggt        A        G
+SNP_A-1780618 ggatattgtccctggg[A/G]atggccttatttatct        A        G
+SNP_A-1780617 ggatattggttgctct[C/T]accttaaagactgttt        C        T
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   Associated.Gene
+SNP_A-1780619 ENST00000371824 // --- // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000396176 // --- // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000448907 // --- // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000371827 // --- // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000357083 // --- // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000371819 // --- // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000371823 // --- // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// NM_001144775 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// NM_021952 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// NM_001144777 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// NM_001144774 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// NM_001144776 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D)
+SNP_A-1780618                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ENST00000304883 // upstream // 34539 // Hs.942 // TACR3 // 6870 // tachykinin receptor 3 /// ENST00000394767 // downstream // 713950 // Hs.12248 // CXXC4 // 80319 // CXXC finger 4 /// NM_001059 // upstream // 34539 // Hs.942 // TACR3 // 6870 // tachykinin receptor 3 /// NM_025212 // downstream // 717832 // Hs.12248 // CXXC4 // 80319 // CXXC finger 4
+SNP_A-1780617                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ENST00000434452 // downstream // 1970129 // Hs.41690 // DSC3 // 1825 // desmocollin 3 /// ENST00000269141 // upstream // 842512 // Hs.464829 // CDH2 // 1000 // cadherin 2, type 1, N-cadherin (neuronal) /// NM_001792 // upstream // 842477 // Hs.464829 // CDH2 // 1000 // cadherin 2, type 1, N-cadherin (neuronal) /// NR_031684 // upstream // 1278953 // --- // MIR302F // 100302131 // microRNA 302f
+                                                                                                                                                                                    Genetic.Map
+SNP_A-1780619   72.030224900657 // D1S2824 // D1S197 // --- // --- /// 76.2778640656789 // D1S2706 // D1S2661 // AFMA337WC1 // AFMA203YE9 /// 68.1611620166171 // --- // --- // 59969 // 770243
+SNP_A-1780618 108.086252579361 // D4S1572 // D4S2913 // --- // --- /// 107.781199531259 // D4S1591 // D4S2907 // AFM291ZD1 // AFMA108ZC5 /// 105.842199012846 // --- // --- // 571244 // 798293
+SNP_A-1780617 52.2532540364436 // D18S1151 // D18S877 // --- // --- /// 54.2778709546567 // D18S478 // D18S877 // AFM311WE5 // GATA64H04 /// 54.3607333406891 // --- // --- // 484788 // 149765
+                                                                Microsatellite
+SNP_A-1780619  D1S2299E // upstream // 6915 /// D1S1559 // downstream // 52144
+SNP_A-1780618 D4S1344 // upstream // 103722 /// D4S2650 // downstream // 90282
+SNP_A-1780617 D18S877 // upstream // 125121 /// D18S1290 // downstream // 6126
+                    Fragment.Enzyme.Type.Length.Start.Stop
+SNP_A-1780619   NspI // --- // 574 // 50660894 // 50661467
+SNP_A-1780618 NspI // --- // 700 // 104675367 // 104676066
+SNP_A-1780617   NspI // --- // 580 // 26599872 // 26600451
+                                                                                                                        Allele.Frequencies
+SNP_A-1780619     0.010204 // 0.989796 // CEPH /// 0.0 // 1.0 // Han Chinese /// 0.0 // 1.0 // Japanese /// 0.022222 // 0.977778 // Yoruba
+SNP_A-1780618   0.38 // 0.62 // CEPH /// 0.366667 // 0.633333 // Han Chinese /// 0.322222 // 0.677778 // Japanese /// 0.2 // 0.8 // Yoruba
+SNP_A-1780617 0.21 // 0.79 // CEPH /// 0.431818 // 0.568182 // Han Chinese /// 0.366667 // 0.633333 // Japanese /// 0.42 // 0.58 // Yoruba
+                                                                       Heterozygous.Allele.Frequencies
+SNP_A-1780619         0.0202 // CEPH /// 0.0 // Han Chinese /// 0.0 // Japanese /// 0.043457 // Yoruba
+SNP_A-1780618    0.4712 // CEPH /// 0.464444 // Han Chinese /// 0.43679 // Japanese /// 0.32 // Yoruba
+SNP_A-1780617 0.3318 // CEPH /// 0.490702 // Han Chinese /// 0.464444 // Japanese /// 0.4872 // Yoruba
+                                               Number.of.individuals.Number.of.chromosomes
+SNP_A-1780619 49.0 // CEPH /// 45.0 // Han Chinese /// 45.0 // Japanese /// 45.0 // Yoruba
+SNP_A-1780618 50.0 // CEPH /// 45.0 // Han Chinese /// 45.0 // Japanese /// 50.0 // Yoruba
+SNP_A-1780617 50.0 // CEPH /// 44.0 // Han Chinese /// 45.0 // Japanese /// 50.0 // Yoruba
+              In.Hapmap Strand.Versus.dbSNP Copy.Number.Variation Probe.Count
+SNP_A-1780619       YES             reverse                   ---          12
+SNP_A-1780618       YES             reverse                   ---          12
+SNP_A-1780617       YES                same                   ---          12
+              ChrX.pseudo.autosomal.region.2 In.Final.List
+SNP_A-1780619                              0           YES
+SNP_A-1780618                              0           YES
+SNP_A-1780617                              0           YES
+                                                                          Minor.Allele
+SNP_A-1780619 --- // CEPH /// --- // Han Chinese /// --- // Japanese /// --- // Yoruba
+SNP_A-1780618 --- // CEPH /// --- // Han Chinese /// --- // Japanese /// --- // Yoruba
+SNP_A-1780617 --- // CEPH /// --- // Han Chinese /// --- // Japanese /// --- // Yoruba
+                                                                            Minor.Allele.Frequency
+SNP_A-1780619   0.010204 // CEPH /// 0.0 // Han Chinese /// 0.0 // Japanese /// 0.022222 // Yoruba
+SNP_A-1780618  0.38 // CEPH /// 0.366667 // Han Chinese /// 0.322222 // Japanese /// 0.2 // Yoruba
+SNP_A-1780617 0.21 // CEPH /// 0.431818 // Han Chinese /// 0.366667 // Japanese /// 0.42 // Yoruba
+                                        X..GC
+SNP_A-1780619 0.492 // StyI /// 0.533 // NspI
+SNP_A-1780618 0.525 // StyI /// 0.491 // NspI
+SNP_A-1780617 0.341 // StyI /// 0.378 // NspI
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               OMIM
+SNP_A-1780619 168360 // Neuropathy // --- // ENST00000371824 // intron /// 168360 // Neuropathy // --- // ENST00000396176 // intron /// 168360 // Neuropathy // --- // ENST00000448907 // intron /// 168360 // Neuropathy // --- // ENST00000371827 // intron /// 168360 // Neuropathy // --- // ENST00000357083 // intron /// 168360 // Neuropathy // --- // ENST00000371819 // intron /// 168360 // Neuropathy // --- // ENST00000371823 // intron /// 168360 // Neuropathy // --- // NM_001144775 // intron /// 168360 // Neuropathy // --- // NM_021952 // intron /// 168360 // Neuropathy // --- // NM_001144777 // intron /// 168360 // Neuropathy // --- // NM_001144774 // intron /// 168360 // Neuropathy // --- // NM_001144776 // intron
+SNP_A-1780618                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       162332 // Hypogonadotropic hypogonadism // 146110 // ENST00000304883 // upstream /// 162332 // Hypogonadotropic hypogonadism // 146110 // NM_001059 // upstream
+SNP_A-1780617                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      125645 // Arrhythmogenic right ventricular dysplasia, familial, 11 // 610476 // ENST00000434452 // downstream /// 600271 // Hypotrichosis and recurrent skin vesicles // 613102 // ENST00000434452 // downstream
+> snp.qc[1:10,]
+             con.call como.hap.map
+AFFX-2315060       13           14
+AFFX-2315061       15           15
+AFFX-2315062       15           14
+AFFX-2315057       15           15
+AFFX-2315058       15           15
+AFFX-2315059       11           13
+AFFX-2315063       15           15
+AFFX-2315064       15           14
+AFFX-2315065       14           12
+AFFX-2315066       14           15
+> 
+> table (rownames (annot) == rownames (datos)) ##OK
+
+  TRUE 
+262264 
+> table (rownames (datos) %in% rownames (snp.qc)) ##OK
+
+  TRUE 
+262264 
+> 
+> snp.qc <- snp.qc[rownames (datos),]
+> 
+> ################################################################################
+> 
+> ###Filtramos por calidades
+> 
+> table (snp.qc[,"con.call"] > 10, snp.qc[,"como.hap.map"] > 10)
+       
+         FALSE   TRUE
+  FALSE   7908   8633
+  TRUE   47130 198593
+> 100 * table (snp.qc[,"con.call"] > 10, snp.qc[,"como.hap.map"] > 10) / nrow (snp.qc)
+       
+            FALSE      TRUE
+  FALSE  3.015282  3.291721
+  TRUE  17.970442 75.722554
+> 
+> touse.qc <- snp.qc[,"con.call"] > 10 & snp.qc[,"como.hap.map"] > 10
+> table (touse.qc)
+touse.qc
+ FALSE   TRUE 
+ 63671 198593 
+> 
+> table (annot[,"Chromosome"] %in% c("---", "Y"))
+
+ FALSE   TRUE 
+261976    288 
+> touse.chr <- !annot[,"Chromosome"] %in% c("---", "Y")
+> table (touse.chr)
+touse.chr
+ FALSE   TRUE 
+   288 261976 
+> 
+> table (touse.qc, touse.chr)
+        touse.chr
+touse.qc  FALSE   TRUE
+   FALSE     82  63589
+   TRUE     206 198387
+> 100 * table (touse.qc, touse.chr) / length (touse.qc)
+        touse.chr
+touse.qc       FALSE        TRUE
+   FALSE  0.03126621 24.24617942
+   TRUE   0.07854681 75.64400756
+> 
+> 
+> touse <- touse.qc & touse.chr
+> table (touse)  
+touse
+ FALSE   TRUE 
+ 63877 198387 
+> 
+> annot <- annot[touse,]
+> datos <- datos[touse,]
+> snp.qc <- snp.qc[touse,]
+> 
+> 
+> ###quitamos el snp repetido
+> 
+> dup <- duplicated (annot[,"dbSNP.RS.ID"])
+> table (dup)
+dup
+ FALSE   TRUE 
+198386      1 
+> 
+> annot <- annot[!dup,]
+> datos <- datos[!dup,]
+> snp.qc <- snp.qc[!dup,]
+> 
+> dim (annot)
+[1] 198386     27
+> dim (datos)
+[1] 198386     15
+> dim (snp.qc)
+[1] 198386      2
+> 
+> 
+> 
+> ###derivamos distancias genomicas y eliminamos los SNPs que no las tienen
+> fun <- function (x) {
++   y <- strsplit (x, split = " ")[[1]][1]
++   return (y)
++ }
+> system.time (deCODE.genetic.map <- sapply (annot[,"Genetic.Map"], fun, USE.NAMES = FALSE))
+   user  system elapsed 
+ 13.180   0.020  13.228 
+> 
+> deCODE.genetic.map[1:10]
+ [1] "72.030224900657"  "108.086252579361" "78.336700651046"  "47.2127875126134"
+ [5] "190.889722445617" "1.98740609553776" "162.620806994332" "43.2004618152885"
+ [9] "72.4507520730385" "119.275532398441"
+> 
+> annot[,"deCODE.genetic.map"] <- as.numeric (deCODE.genetic.map)
+Warning message:
+NAs introduced by coercion 
+> 
+> esna <- is.na (annot[,"deCODE.genetic.map"])
+> table (esna) #63
+esna
+ FALSE   TRUE 
+198323     63 
+> 
+> deCODE.genetic.map[esna]
+ [1] "---" "---" "---" "---" "---" "---" "---" "---" "---" "---" "---" "---"
+[13] "---" "---" "---" "---" "---" "---" "---" "---" "---" "---" "---" "---"
+[25] "---" "---" "---" "---" "---" "---" "---" "---" "---" "---" "---" "---"
+[37] "---" "---" "---" "---" "---" "---" "---" "---" "---" "---" "---" "---"
+[49] "---" "---" "---" "---" "---" "---" "---" "---" "---" "---" "---" "---"
+[61] "---" "---" "---"
+> 
+> table (annot[,"Chromosome"], esna) #todos en el cromosoma X
+    esna
+     FALSE  TRUE
+  1  14915     0
+  10 10739     0
+  11  9963     0
+  12  9739     0
+  13  8306     0
+  14  6112     0
+  15  5213     0
+  16  5381     0
+  17  3676     0
+  18  6163     0
+  19  2026     0
+  2  16796     0
+  20  4410     0
+  21  2939     0
+  22  1858     0
+  3  13836     0
+  4  14364     0
+  5  12959     0
+  6  12893     0
+  7  10525     0
+  8  11307     0
+  9   9048     0
+  X   5155    63
+> 
+> annot <- annot[!esna,]
+> datos <- datos[!esna,]
+> snp.qc <- snp.qc[!esna,]
+> 
+> dim (annot)
+[1] 198323     28
+> dim (datos)
+[1] 198323     15
+> dim (snp.qc)
+[1] 198323      2
+> 
+> 
+> ##formateamos a numerica la posicion cromosomica
+> annot[,"posicion"] <- as.numeric (annot[,"Physical.Position"])
+> table (is.na (annot[,"posicion"]))
+
+ FALSE 
+198323 
+> 
+> ################################################################################
+> 
+> table (rownames (annot) == rownames (datos)) ##OK
+
+  TRUE 
+198323 
+> table (rownames (datos) == rownames (snp.qc)) ##OK
+
+  TRUE 
+198323 
+> 
+> 
+> ###nombres de las filas
+> table (duplicated (annot[,"dbSNP.RS.ID"]))
+
+ FALSE 
+198323 
+> 
+> rownames (annot) <- annot[,"dbSNP.RS.ID"]
+> rownames (datos) <- annot[,"dbSNP.RS.ID"]
+> 
+> ################################################################################
+> 
+> datos <- datos[,-15] ##el ultimo array esta repetido
+> 
+> ###nombres de las columnas
+> rownames (ped)
+ [1] "id300"  "id400"  "id1046" "id921"  "id923"  "id907"  "id715"  "id716" 
+ [9] "id717"  "id718"  "id719"  "id720"  "id721"  "id722"  "id723"  "id724" 
+[17] "id726"  "id1047"
+> colnames (datos) ##no coinciden
+ [1] "PP1046.CEL" "PP1047.CEL" "PP.715.CEL" "PP.716.CEL" "PP.717.CEL"
+ [6] "PP.718.CEL" "PP.719.CEL" "PP.720.CEL" "PP.721.CEL" "PP.722.CEL"
+[11] "PP.723.CEL" "PP.724.CEL" "PP.726.CEL" "PP907.CEL" 
+> 
+> array.id <- sub (pattern = ".CEL", replacement = "", colnames (datos))
+> array.id <- sub (pattern = "PP",   replacement = "id", array.id)
+> array.id <- sub (pattern = "\\.",  replacement = "", array.id)
+> array.id
+ [1] "id1046" "id1047" "id715"  "id716"  "id717"  "id718"  "id719"  "id720" 
+ [9] "id721"  "id722"  "id723"  "id724"  "id726"  "id907" 
+> 
+> colnames (datos) <- array.id
+> 
+> table (colnames (datos) %in% rownames (ped))
+
+TRUE 
+  14 
+> 
+> ###SALVAMOS
+> save (list = c("datos", "annot"), file = file.path (.job$datadir, "data_processed", "datos_filtrados.RData"))
+> 
+> 
+> ###EXIT
+> warnings ()
+Warning message:
+NAs introduced by coercion
+> sessionInfo ()
+R version 2.12.1 (2010-12-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=C              LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+> q ("no")
+> proc.time()
+   user  system elapsed 
+ 70.350   0.500  71.051 

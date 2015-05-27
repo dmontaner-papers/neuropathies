@@ -1,0 +1,2108 @@
+
+R version 2.12.1 (2010-12-16)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##s010_estudio_res_apt.r
+> ##2011-03-11 dmontaner@cipf.es
+> ##analisis de datos para Carmen Espinos y Eduardo Calpena.
+> ##Chequeamos la calidad de los resultados del APT
+> 
+> ##HAY MUCHISIMOS MISSING CALLS
+> 
+> ### 14 individuos:
+> ##                   11 antiguos
+> ##                    3 nuevos - Con uno de los arrays por DUPLICADO
+> ## 15 arrays
+> 
+> date ()
+[1] "Sat Mar 12 02:01:03 2011"
+> Sys.info ()[c("nodename", "user")]
+     nodename          user 
+"davidlaptop"   "dmontaner" 
+> commandArgs ()
+[1] "/usr/lib64/R/bin/exec/R" "-f"                     
+[3] "s010_estudio_res_apt.r"  "--restore"              
+[5] "--save"                  "--no-readline"          
+[7] "--no-save"               "--no-restore"           
+> rm (list = ls ())
+> R.version.string #"R version 2.12.1 (2010-12-16)"
+[1] "R version 2.12.1 (2010-12-16)"
+> #library (kinship); packageDescription ("kinship", fields = "Version") #"1.1.0-23"
+> 
+> try (source (".job.r")); try (.job)
+
+.job.r has been sourced
+
+$owner
+[1] "eduardo_calpena"
+
+$datadir
+[1] "~/datos/2011/eduardo_calpena"
+
+$docsdir
+[1] "~/trabajos/2011/eduardo_calpena"
+
+$scriptdir
+[1] "~/trabajos/2011/eduardo_calpena/scripts"
+
+$sinfodir
+[1] "~/trabajos/2011/eduardo_calpena/sampleinfo"
+
+$plotsdir
+[1] "~/datos/2011/eduardo_calpena/data_results/from_script_plots"
+
+$testmode
+[1] FALSE
+
+$dec
+[1] "."
+
+> 
+> ###PED
+> load (file = file.path (.job$datadir, "data_processed", "ped.RData"))
+> ped
+       fam   id padre madre sexo afec sinarray        cel
+id300  266  300     0     0    1    1        1       <NA>
+id400  266  400     0     0    2    2        1       <NA>
+id1046 266 1046     0     0    2    1        0 PP1046.CEL
+id921  266  921     0     0    1    1        1       <NA>
+id923  266  923     0     0    1    1        1       <NA>
+id907  266  907     0     0    1    1        0  PP907.CEL
+id715  266  715   921   721    1    2        0 PP 715.CEL
+id716  266  716   921   721    2    2        0 PP 716.CEL
+id717  266  717   921   721    1    1        0 PP 717.CEL
+id718  266  718   300   400    1    2        0 PP 718.CEL
+id719  266  719   300   400    1    1        0 PP 719.CEL
+id720  266  720   300   400    2    2        0 PP 720.CEL
+id721  266  721   300   400    2    2        0 PP 721.CEL
+id722  266  722   923   723    1    2        0 PP 722.CEL
+id723  266  723   300   400    2    2        0 PP 723.CEL
+id724  266  724   907   720    1    0        0 PP 724.CEL
+id726  266  726   718  1046    1    0        0 PP 726.CEL
+id1047 266 1047   718  1046    1    1        0 PP1047.CEL
+> 
+> ################################################################################
+> 
+> pdf (file = file.path (.job$plotsdir, "plots_calidad.pdf"),  onefile = TRUE)
+> 
+> ###DATOS sin HapMap
+> 
+> system.time (datos.sin <- read.table (file = file.path (.job$datadir, "data_processed", "apt", "probeset-genotype-chp",
++                                         "brlmm.calls.txt"),
++                                       header = TRUE, sep = "\t", quote = "", as.is = TRUE, comment.char = "#", nrows = 100))
+   user  system elapsed 
+  0.000   0.000   0.002 
+> mis.clases <- sapply (datos.sin, class)
+> mis.clases
+ probeset_id   PP1046.CEL   PP1047.CEL   PP.715.CEL   PP.716.CEL   PP.717.CEL 
+ "character"    "integer"    "integer"    "integer"    "integer"    "integer" 
+  PP.718.CEL   PP.719.CEL   PP.720.CEL   PP.721.CEL   PP.722.CEL   PP.723.CEL 
+   "integer"    "integer"    "integer"    "integer"    "integer"    "integer" 
+  PP.724.CEL   PP.726.CEL    PP907.CEL PP907DIC.CEL 
+   "integer"    "integer"    "integer"    "integer" 
+> 
+> system.time (datos.sin <- read.table (file = file.path (.job$datadir, "data_processed", "apt", "probeset-genotype-chp",
++                                         "brlmm.calls.txt"),
++                                       header = TRUE, sep = "\t", quote = "", row.names = 1, colClasses = mis.clases,
++                                       comment.char = "#"))
+   user  system elapsed 
+  2.610   0.090   2.719 
+> 
+> datos.sin[1:10,]
+             PP1046.CEL PP1047.CEL PP.715.CEL PP.716.CEL PP.717.CEL PP.718.CEL
+AFFX-2315060         -1          2          2          2          2          2
+AFFX-2315061          0          1          2          0          2          2
+AFFX-2315062          0          0          2          1          2          0
+AFFX-2315057          1          2          2          2          2          1
+AFFX-2315058          0          0          1          1          1          0
+AFFX-2315059         -1         -1          0          0          0         -1
+AFFX-2315063          0          0          0          1          1          1
+AFFX-2315064          1          2          2          2          2          1
+AFFX-2315065          1          1         -1          1          1          2
+AFFX-2315066          2          1          2          1          1         -1
+             PP.719.CEL PP.720.CEL PP.721.CEL PP.722.CEL PP.723.CEL PP.724.CEL
+AFFX-2315060          2          2          2          1         -1          1
+AFFX-2315061          0          1          1          0          0          2
+AFFX-2315062          1          1          1          1          1          1
+AFFX-2315057          0          2          2          2          2          1
+AFFX-2315058          0          2          2          1          1          1
+AFFX-2315059          0          0          0          0          0          0
+AFFX-2315063          1          1          1          1          1          1
+AFFX-2315064          2          1          2          2          2          1
+AFFX-2315065          2          2          2          2          1          1
+AFFX-2315066          0          1          1          1          0          2
+             PP.726.CEL PP907.CEL PP907DIC.CEL
+AFFX-2315060          2         0            0
+AFFX-2315061          1         2            2
+AFFX-2315062          1         1            1
+AFFX-2315057          2         1            1
+AFFX-2315058          1         0            0
+AFFX-2315059          0         1           -1
+AFFX-2315063          0         1            1
+AFFX-2315064          1         0            0
+AFFX-2315065          2         0            0
+AFFX-2315066          1         2            2
+> dim (datos.sin)
+[1] 262314     15
+> summary (datos.sin)
+   PP1046.CEL        PP1047.CEL        PP.715.CEL        PP.716.CEL     
+ Min.   :-1.0000   Min.   :-1.0000   Min.   :-1.0000   Min.   :-1.0000  
+ 1st Qu.: 0.0000   1st Qu.: 0.0000   1st Qu.: 0.0000   1st Qu.: 0.0000  
+ Median : 0.0000   Median : 0.0000   Median : 1.0000   Median : 1.0000  
+ Mean   : 0.4722   Mean   : 0.4937   Mean   : 0.8722   Mean   : 0.6744  
+ 3rd Qu.: 1.0000   3rd Qu.: 2.0000   3rd Qu.: 2.0000   3rd Qu.: 2.0000  
+ Max.   : 2.0000   Max.   : 2.0000   Max.   : 2.0000   Max.   : 2.0000  
+   PP.717.CEL        PP.718.CEL        PP.719.CEL        PP.720.CEL     
+ Min.   :-1.0000   Min.   :-1.0000   Min.   :-1.0000   Min.   :-1.0000  
+ 1st Qu.: 0.0000   1st Qu.:-1.0000   1st Qu.: 0.0000   1st Qu.: 0.0000  
+ Median : 1.0000   Median : 0.0000   Median : 1.0000   Median : 1.0000  
+ Mean   : 0.8944   Mean   : 0.4203   Mean   : 0.7442   Mean   : 0.8184  
+ 3rd Qu.: 2.0000   3rd Qu.: 1.0000   3rd Qu.: 2.0000   3rd Qu.: 2.0000  
+ Max.   : 2.0000   Max.   : 2.0000   Max.   : 2.0000   Max.   : 2.0000  
+   PP.721.CEL        PP.722.CEL        PP.723.CEL        PP.724.CEL     
+ Min.   :-1.0000   Min.   :-1.0000   Min.   :-1.0000   Min.   :-1.0000  
+ 1st Qu.: 0.0000   1st Qu.: 0.0000   1st Qu.: 0.0000   1st Qu.: 0.0000  
+ Median : 1.0000   Median : 1.0000   Median : 1.0000   Median : 1.0000  
+ Mean   : 0.9134   Mean   : 0.9315   Mean   : 0.6962   Mean   : 0.9293  
+ 3rd Qu.: 2.0000   3rd Qu.: 2.0000   3rd Qu.: 2.0000   3rd Qu.: 2.0000  
+ Max.   : 2.0000   Max.   : 2.0000   Max.   : 2.0000   Max.   : 2.0000  
+   PP.726.CEL        PP907.CEL        PP907DIC.CEL    
+ Min.   :-1.0000   Min.   :-1.0000   Min.   :-1.0000  
+ 1st Qu.: 0.0000   1st Qu.: 0.0000   1st Qu.: 0.0000  
+ Median : 1.0000   Median : 0.0000   Median : 0.0000  
+ Mean   : 0.8938   Mean   : 0.6167   Mean   : 0.4588  
+ 3rd Qu.: 2.0000   3rd Qu.: 2.0000   3rd Qu.: 1.0000  
+ Max.   : 2.0000   Max.   : 2.0000   Max.   : 2.0000  
+> 
+> conteos.sin <- t (apply (datos.sin, 2, table))
+> conteos.sin
+                -1      0     1     2
+PP1046.CEL   64799  74158 58060 65297
+PP1047.CEL   62016  77361 54347 68590
+PP.715.CEL   14569  99392 53353 95000
+PP.716.CEL   38379  87779 57018 79138
+PP.717.CEL   11522  99561 56327 94904
+PP.718.CEL   70346  73540 56269 62159
+PP.719.CEL   28538  98534 46727 88515
+PP.720.CEL   20576 100480 47268 93990
+PP.721.CEL    9425 100661 55438 96790
+PP.722.CEL    7377  98730 60683 95524
+PP.723.CEL   35081  90783 55190 81260
+PP.724.CEL    7350  99038 60740 95186
+PP.726.CEL   11877  98589 57367 94481
+PP907.CEL    46862  84524 53224 77704
+PP907DIC.CEL 65348  75689 56865 64412
+> 
+> malos.rate.sin <- 100 * conteos.sin[,1] / rowSums (conteos.sin[,2:4])
+> malos.rate.sin
+  PP1046.CEL   PP1047.CEL   PP.715.CEL   PP.716.CEL   PP.717.CEL   PP.718.CEL 
+   32.807129    30.961867     5.880643    17.138455     4.594245    36.644649 
+  PP.719.CEL   PP.720.CEL   PP.721.CEL   PP.722.CEL   PP.723.CEL   PP.724.CEL 
+   12.207412     8.511694     3.726932     2.893656    15.438339     2.882760 
+  PP.726.CEL    PP907.CEL PP907DIC.CEL 
+    4.742510    21.750552    33.177300 
+> 
+> cbind (conteos.sin, malos.rate.sin)
+                -1      0     1     2 malos.rate.sin
+PP1046.CEL   64799  74158 58060 65297      32.807129
+PP1047.CEL   62016  77361 54347 68590      30.961867
+PP.715.CEL   14569  99392 53353 95000       5.880643
+PP.716.CEL   38379  87779 57018 79138      17.138455
+PP.717.CEL   11522  99561 56327 94904       4.594245
+PP.718.CEL   70346  73540 56269 62159      36.644649
+PP.719.CEL   28538  98534 46727 88515      12.207412
+PP.720.CEL   20576 100480 47268 93990       8.511694
+PP.721.CEL    9425 100661 55438 96790       3.726932
+PP.722.CEL    7377  98730 60683 95524       2.893656
+PP.723.CEL   35081  90783 55190 81260      15.438339
+PP.724.CEL    7350  99038 60740 95186       2.882760
+PP.726.CEL   11877  98589 57367 94481       4.742510
+PP907.CEL    46862  84524 53224 77704      21.750552
+PP907DIC.CEL 65348  75689 56865 64412      33.177300
+> 
+> ###
+> 
+> misarrays <- colnames (datos.sin)
+> misarrays
+ [1] "PP1046.CEL"   "PP1047.CEL"   "PP.715.CEL"   "PP.716.CEL"   "PP.717.CEL"  
+ [6] "PP.718.CEL"   "PP.719.CEL"   "PP.720.CEL"   "PP.721.CEL"   "PP.722.CEL"  
+[11] "PP.723.CEL"   "PP.724.CEL"   "PP.726.CEL"   "PP907.CEL"    "PP907DIC.CEL"
+> 
+> ################################################################################
+> 
+> 
+> ###DATOS con HapMap
+> 
+> system.time (datos.con <- read.table (file = file.path (.job$datadir, "data_processed", "apt_hapmap",
++                                         "probeset-genotype-chp", "brlmm.calls.txt"),
++                                       header = TRUE, sep = "\t", quote = "", as.is = TRUE, comment.char = "#", nrows = 100))
+   user  system elapsed 
+  0.020   0.000   0.018 
+> mis.clases <- sapply (datos.con, class)
+> mis.clases
+            probeset_id              PP1046.CEL              PP1047.CEL 
+            "character"               "integer"               "integer" 
+             PP.715.CEL              PP.716.CEL              PP.717.CEL 
+              "integer"               "integer"               "integer" 
+             PP.718.CEL              PP.719.CEL              PP.720.CEL 
+              "integer"               "integer"               "integer" 
+             PP.721.CEL              PP.722.CEL              PP.723.CEL 
+              "integer"               "integer"               "integer" 
+             PP.724.CEL              PP.726.CEL               PP907.CEL 
+              "integer"               "integer"               "integer" 
+           PP907DIC.CEL     CEU_NA06985_NSP.CEL     CEU_NA06991_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA06993_NSP.CEL     CEU_NA06994_NSP.CEL     CEU_NA07000_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA07019_NSP.CEL     CEU_NA07022_NSP.CEL     CEU_NA07029_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA07034_NSP.CEL     CEU_NA07048_NSP.CEL     CEU_NA07055_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA07056_NSP.CEL     CEU_NA07345_NSP.CEL     CEU_NA07348_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA07357_NSP.CEL     CEU_NA10830_NSP.CEL     CEU_NA10831_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA10835_NSP.CEL     CEU_NA10838_NSP.CEL     CEU_NA10839_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA10846_NSP.CEL     CEU_NA10847_NSP.CEL     CEU_NA10851_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA10854_NSP.CEL     CEU_NA10855_NSP.CEL     CEU_NA10856_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA10857_NSP.CEL     CEU_NA10859_NSP.CEL     CEU_NA10860_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA10861_NSP.CEL     CEU_NA10863_NSP.CEL     CEU_NA11829_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA11830_NSP.CEL     CEU_NA11831_NSP.CEL     CEU_NA11832_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA11839_NSP.CEL     CEU_NA11840_NSP.CEL     CEU_NA11881_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA11882_NSP.CEL     CEU_NA11992_NSP.CEL     CEU_NA11993_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA11994_NSP.CEL     CEU_NA11995_NSP.CEL     CEU_NA12003_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA12004_NSP.CEL     CEU_NA12005_NSP.CEL     CEU_NA12006_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA12043_NSP.CEL     CEU_NA12044_NSP.CEL     CEU_NA12056_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA12057_NSP.CEL     CEU_NA12144_NSP.CEL     CEU_NA12145_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA12146_NSP.CEL     CEU_NA12154_NSP.CEL     CEU_NA12155_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA12156_NSP.CEL     CEU_NA12234_NSP.CEL     CEU_NA12236_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA12239_NSP.CEL     CEU_NA12248_NSP.CEL     CEU_NA12249_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA12264_NSP.CEL     CEU_NA12707_NSP.CEL     CEU_NA12716_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA12717_NSP.CEL     CEU_NA12740_NSP.CEL     CEU_NA12750_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA12751_NSP.CEL     CEU_NA12752_NSP.CEL     CEU_NA12753_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA12760_NSP.CEL     CEU_NA12761_NSP.CEL     CEU_NA12762_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA12763_NSP.CEL     CEU_NA12801_NSP.CEL     CEU_NA12802_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA12812_NSP.CEL     CEU_NA12813_NSP.CEL     CEU_NA12814_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA12815_NSP.CEL     CEU_NA12864_NSP.CEL     CEU_NA12865_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA12872_NSP.CEL     CEU_NA12873_NSP.CEL     CEU_NA12874_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA12875_NSP.CEL     CEU_NA12878_NSP.CEL     CEU_NA12891_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    CEU_NA12892_NSP.CEL CHB.JPT_NA18524_NSP.CEL CHB.JPT_NA18526_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18529_NSP.CEL CHB.JPT_NA18532_NSP.CEL CHB.JPT_NA18537_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18540_NSP.CEL CHB.JPT_NA18542_NSP.CEL CHB.JPT_NA18545_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18547_NSP.CEL CHB.JPT_NA18550_NSP.CEL CHB.JPT_NA18552_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18555_NSP.CEL CHB.JPT_NA18558_NSP.CEL CHB.JPT_NA18561_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18562_NSP.CEL CHB.JPT_NA18563_NSP.CEL CHB.JPT_NA18564_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18566_NSP.CEL CHB.JPT_NA18570_NSP.CEL CHB.JPT_NA18571_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18572_NSP.CEL CHB.JPT_NA18573_NSP.CEL CHB.JPT_NA18576_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18577_NSP.CEL CHB.JPT_NA18579_NSP.CEL CHB.JPT_NA18582_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18592_NSP.CEL CHB.JPT_NA18593_NSP.CEL CHB.JPT_NA18594_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18603_NSP.CEL CHB.JPT_NA18605_NSP.CEL CHB.JPT_NA18608_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18609_NSP.CEL CHB.JPT_NA18611_NSP.CEL CHB.JPT_NA18612_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18620_NSP.CEL CHB.JPT_NA18621_NSP.CEL CHB.JPT_NA18622_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18623_NSP.CEL CHB.JPT_NA18624_NSP.CEL CHB.JPT_NA18632_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18633_NSP.CEL CHB.JPT_NA18635_NSP.CEL CHB.JPT_NA18636_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18637_NSP.CEL CHB.JPT_NA18940_NSP.CEL CHB.JPT_NA18942_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18943_NSP.CEL CHB.JPT_NA18944_NSP.CEL CHB.JPT_NA18945_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18947_NSP.CEL CHB.JPT_NA18948_NSP.CEL CHB.JPT_NA18949_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18951_NSP.CEL CHB.JPT_NA18952_NSP.CEL CHB.JPT_NA18953_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18956_NSP.CEL CHB.JPT_NA18959_NSP.CEL CHB.JPT_NA18960_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18961_NSP.CEL CHB.JPT_NA18964_NSP.CEL CHB.JPT_NA18965_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18966_NSP.CEL CHB.JPT_NA18967_NSP.CEL CHB.JPT_NA18968_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18969_NSP.CEL CHB.JPT_NA18970_NSP.CEL CHB.JPT_NA18971_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18972_NSP.CEL CHB.JPT_NA18973_NSP.CEL CHB.JPT_NA18974_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18975_NSP.CEL CHB.JPT_NA18976_NSP.CEL CHB.JPT_NA18978_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18980_NSP.CEL CHB.JPT_NA18981_NSP.CEL CHB.JPT_NA18987_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18990_NSP.CEL CHB.JPT_NA18991_NSP.CEL CHB.JPT_NA18992_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18994_NSP.CEL CHB.JPT_NA18995_NSP.CEL CHB.JPT_NA18997_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA18998_NSP.CEL CHB.JPT_NA18999_NSP.CEL CHB.JPT_NA19000_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA19003_NSP.CEL CHB.JPT_NA19005_NSP.CEL CHB.JPT_NA19007_NSP.CEL 
+              "integer"               "integer"               "integer" 
+CHB.JPT_NA19012_NSP.CEL     YRI_NA18500_NSP.CEL     YRI_NA18501_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA18502_NSP.CEL     YRI_NA18503_NSP.CEL     YRI_NA18504_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA18505_NSP.CEL     YRI_NA18506_NSP.CEL     YRI_NA18507_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA18508_NSP.CEL     YRI_NA18515_NSP.CEL     YRI_NA18516_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA18517_NSP.CEL     YRI_NA18521_NSP.CEL     YRI_NA18522_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA18523_NSP.CEL     YRI_NA18852_NSP.CEL     YRI_NA18853_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA18854_NSP.CEL     YRI_NA18855_NSP.CEL     YRI_NA18856_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA18857_NSP.CEL     YRI_NA18858_NSP.CEL     YRI_NA18859_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA18860_NSP.CEL     YRI_NA18861_NSP.CEL     YRI_NA18862_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA18863_NSP.CEL     YRI_NA18870_NSP.CEL     YRI_NA18871_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA18872_NSP.CEL     YRI_NA18912_NSP.CEL     YRI_NA18913_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA18914_NSP.CEL     YRI_NA19092_NSP.CEL     YRI_NA19093_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19094_NSP.CEL     YRI_NA19098_NSP.CEL     YRI_NA19099_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19100_NSP.CEL     YRI_NA19101_NSP.CEL     YRI_NA19102_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19103_NSP.CEL     YRI_NA19116_NSP.CEL     YRI_NA19119_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19120_NSP.CEL     YRI_NA19127_NSP.CEL     YRI_NA19128_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19129_NSP.CEL     YRI_NA19130_NSP.CEL     YRI_NA19131_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19132_NSP.CEL     YRI_NA19137_NSP.CEL     YRI_NA19138_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19139_NSP.CEL     YRI_NA19140_NSP.CEL     YRI_NA19141_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19142_NSP.CEL     YRI_NA19143_NSP.CEL     YRI_NA19144_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19145_NSP.CEL     YRI_NA19152_NSP.CEL     YRI_NA19153_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19154_NSP.CEL     YRI_NA19159_NSP.CEL     YRI_NA19160_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19161_NSP.CEL     YRI_NA19171_NSP.CEL     YRI_NA19172_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19173_NSP.CEL     YRI_NA19192_NSP.CEL     YRI_NA19193_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19194_NSP.CEL     YRI_NA19200_NSP.CEL     YRI_NA19201_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19202_NSP.CEL     YRI_NA19203_NSP.CEL     YRI_NA19204_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19205_NSP.CEL     YRI_NA19206_NSP.CEL     YRI_NA19207_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19208_NSP.CEL     YRI_NA19209_NSP.CEL     YRI_NA19210_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19211_NSP.CEL     YRI_NA19221_NSP.CEL     YRI_NA19222_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19223_NSP.CEL     YRI_NA19238_NSP.CEL     YRI_NA19239_NSP.CEL 
+              "integer"               "integer"               "integer" 
+    YRI_NA19240_NSP.CEL 
+              "integer" 
+> 
+> ##15 segundos
+> system.time (datos.con <- read.table (file = file.path (.job$datadir, "data_processed", "apt_hapmap",
++                                         "probeset-genotype-chp", "brlmm.calls.txt"),
++                                       header = TRUE, sep = "\t", quote = "", row.names = 1, colClasses = mis.clases,
++                                       comment.char = "#"))
+   user  system elapsed 
+  15.46    0.29   15.79 
+> 
+> datos.con[1:10,]
+             PP1046.CEL PP1047.CEL PP.715.CEL PP.716.CEL PP.717.CEL PP.718.CEL
+AFFX-2315060         -1          2          2          2          2          2
+AFFX-2315061          0          1          2          0          2          2
+AFFX-2315062         -1          0          2          1          2          0
+AFFX-2315057          1          2          2          2          2          1
+AFFX-2315058          0          0          1          1          1          0
+AFFX-2315059          1         -1          0          1          0         -1
+AFFX-2315063          0          0          0          1          1          1
+AFFX-2315064          1          2          2         -1          2          1
+AFFX-2315065         -1         -1         -1          1         -1          2
+AFFX-2315066          2          1          2          1          1         -1
+             PP.719.CEL PP.720.CEL PP.721.CEL PP.722.CEL PP.723.CEL PP.724.CEL
+AFFX-2315060          2          2          2          1          2          1
+AFFX-2315061          0          1          1          0          0          2
+AFFX-2315062          1          1          1          1          1          1
+AFFX-2315057          0          2          2          2          2          1
+AFFX-2315058          0          2          2          1          1          1
+AFFX-2315059          0          0          0          0          0          0
+AFFX-2315063          1          1          1          1          1          1
+AFFX-2315064          2          1          2          2          2          1
+AFFX-2315065          2          2          2          2          1          1
+AFFX-2315066          0          1          1          1          0          2
+             PP.726.CEL PP907.CEL PP907DIC.CEL CEU_NA06985_NSP.CEL
+AFFX-2315060          2         0            0                   1
+AFFX-2315061          1         2            2                   2
+AFFX-2315062          1         1            1                   1
+AFFX-2315057          2         1            1                   1
+AFFX-2315058          1         0            0                   0
+AFFX-2315059          0         1           -1                   1
+AFFX-2315063          0         1            1                   1
+AFFX-2315064          1         0            0                   0
+AFFX-2315065          2         0            0                   1
+AFFX-2315066          1         2            2                   1
+             CEU_NA06991_NSP.CEL CEU_NA06993_NSP.CEL CEU_NA06994_NSP.CEL
+AFFX-2315060                   2                   2                   1
+AFFX-2315061                   1                   1                   1
+AFFX-2315062                   2                   1                   0
+AFFX-2315057                   0                   0                   0
+AFFX-2315058                   0                   1                   1
+AFFX-2315059                   1                   1                   2
+AFFX-2315063                   1                   1                   1
+AFFX-2315064                   1                   2                   0
+AFFX-2315065                   1                   1                   0
+AFFX-2315066                   1                   1                   1
+             CEU_NA07000_NSP.CEL CEU_NA07019_NSP.CEL CEU_NA07022_NSP.CEL
+AFFX-2315060                   1                   1                   1
+AFFX-2315061                   1                   1                   1
+AFFX-2315062                   1                   0                   1
+AFFX-2315057                   1                   2                   2
+AFFX-2315058                   0                   0                   0
+AFFX-2315059                   1                   1                   1
+AFFX-2315063                   0                   0                   0
+AFFX-2315064                   2                   1                   1
+AFFX-2315065                   1                   0                   0
+AFFX-2315066                   1                   1                   2
+             CEU_NA07029_NSP.CEL CEU_NA07034_NSP.CEL CEU_NA07048_NSP.CEL
+AFFX-2315060                   2                   1                   1
+AFFX-2315061                   0                   1                   1
+AFFX-2315062                   1                   0                   1
+AFFX-2315057                   1                   0                   1
+AFFX-2315058                   1                   0                   1
+AFFX-2315059                   2                   1                   0
+AFFX-2315063                   1                   0                   0
+AFFX-2315064                   1                   1                   2
+AFFX-2315065                   0                   0                   0
+AFFX-2315066                   2                   0                   1
+             CEU_NA07055_NSP.CEL CEU_NA07056_NSP.CEL CEU_NA07345_NSP.CEL
+AFFX-2315060                   2                   2                   0
+AFFX-2315061                   2                   2                   1
+AFFX-2315062                   1                   1                   2
+AFFX-2315057                   2                   1                   2
+AFFX-2315058                   1                   1                   0
+AFFX-2315059                   0                   2                   1
+AFFX-2315063                   0                   1                   1
+AFFX-2315064                   2                   1                   0
+AFFX-2315065                   0                   1                   0
+AFFX-2315066                   2                   1                   2
+             CEU_NA07348_NSP.CEL CEU_NA07357_NSP.CEL CEU_NA10830_NSP.CEL
+AFFX-2315060                   1                   1                   1
+AFFX-2315061                   0                   1                   1
+AFFX-2315062                   2                   2                   2
+AFFX-2315057                   2                   1                   1
+AFFX-2315058                   0                   0                   0
+AFFX-2315059                   1                   0                   0
+AFFX-2315063                   1                   1                   1
+AFFX-2315064                   0                   0                   0
+AFFX-2315065                   0                   1                   0
+AFFX-2315066                   2                   1                   2
+             CEU_NA10831_NSP.CEL CEU_NA10835_NSP.CEL CEU_NA10838_NSP.CEL
+AFFX-2315060                   2                   1                   1
+AFFX-2315061                   2                   1                   1
+AFFX-2315062                   0                   0                   0
+AFFX-2315057                   1                   1                   1
+AFFX-2315058                   0                   0                   0
+AFFX-2315059                   1                   0                   1
+AFFX-2315063                   0                   2                   1
+AFFX-2315064                   2                   1                   1
+AFFX-2315065                   0                   0                   1
+AFFX-2315066                   2                   2                   1
+             CEU_NA10839_NSP.CEL CEU_NA10846_NSP.CEL CEU_NA10847_NSP.CEL
+AFFX-2315060                   1                   1                   0
+AFFX-2315061                   2                   1                   1
+AFFX-2315062                   2                   0                   1
+AFFX-2315057                   2                   1                   1
+AFFX-2315058                   0                   0                   0
+AFFX-2315059                   1                   1                   1
+AFFX-2315063                   0                   0                   2
+AFFX-2315064                   0                   2                   1
+AFFX-2315065                   1                   2                   0
+AFFX-2315066                   2                   2                   2
+             CEU_NA10851_NSP.CEL CEU_NA10854_NSP.CEL CEU_NA10855_NSP.CEL
+AFFX-2315060                   1                   1                   0
+AFFX-2315061                   1                   2                   1
+AFFX-2315062                   1                   0                   1
+AFFX-2315057                   2                   1                   2
+AFFX-2315058                   0                   0                   0
+AFFX-2315059                   1                   2                   1
+AFFX-2315063                   0                   1                   0
+AFFX-2315064                   0                   2                   1
+AFFX-2315065                   1                   1                   0
+AFFX-2315066                   1                   1                   2
+             CEU_NA10856_NSP.CEL CEU_NA10857_NSP.CEL CEU_NA10859_NSP.CEL
+AFFX-2315060                   0                   0                   0
+AFFX-2315061                   2                   1                   1
+AFFX-2315062                   1                   1                   2
+AFFX-2315057                   1                   1                   0
+AFFX-2315058                   0                   0                   0
+AFFX-2315059                   1                   2                   0
+AFFX-2315063                   2                   1                   2
+AFFX-2315064                   1                   1                   1
+AFFX-2315065                   0                   2                  -1
+AFFX-2315066                   2                   1                   2
+             CEU_NA10860_NSP.CEL CEU_NA10861_NSP.CEL CEU_NA10863_NSP.CEL
+AFFX-2315060                   1                   0                   0
+AFFX-2315061                   1                   2                   0
+AFFX-2315062                   1                   2                   2
+AFFX-2315057                   1                   1                   0
+AFFX-2315058                   0                   1                   0
+AFFX-2315059                   0                   1                   1
+AFFX-2315063                   1                   0                   1
+AFFX-2315064                   1                   2                   0
+AFFX-2315065                   1                   0                   0
+AFFX-2315066                   2                   2                   1
+             CEU_NA11829_NSP.CEL CEU_NA11830_NSP.CEL CEU_NA11831_NSP.CEL
+AFFX-2315060                   0                   0                   0
+AFFX-2315061                   1                   1                   2
+AFFX-2315062                   1                   1                   2
+AFFX-2315057                   2                   1                   2
+AFFX-2315058                   0                   0                   0
+AFFX-2315059                   1                   2                   0
+AFFX-2315063                   1                   1                   1
+AFFX-2315064                   1                   2                   1
+AFFX-2315065                   1                   0                   1
+AFFX-2315066                   2                   2                   2
+             CEU_NA11832_NSP.CEL CEU_NA11839_NSP.CEL CEU_NA11840_NSP.CEL
+AFFX-2315060                   1                   0                   1
+AFFX-2315061                   1                   2                   2
+AFFX-2315062                   0                   0                   1
+AFFX-2315057                   1                   0                   1
+AFFX-2315058                   0                   0                   0
+AFFX-2315059                   2                   1                   2
+AFFX-2315063                   1                   1                   1
+AFFX-2315064                   2                   2                   2
+AFFX-2315065                   1                   0                   1
+AFFX-2315066                   2                   2                   1
+             CEU_NA11881_NSP.CEL CEU_NA11882_NSP.CEL CEU_NA11992_NSP.CEL
+AFFX-2315060                   1                   0                   0
+AFFX-2315061                   2                   1                   1
+AFFX-2315062                   1                   2                   0
+AFFX-2315057                   1                   0                   1
+AFFX-2315058                   1                   1                   0
+AFFX-2315059                   1                   0                   0
+AFFX-2315063                   1                   2                   1
+AFFX-2315064                   0                   2                   1
+AFFX-2315065                   0                   0                   1
+AFFX-2315066                   1                   1                   2
+             CEU_NA11993_NSP.CEL CEU_NA11994_NSP.CEL CEU_NA11995_NSP.CEL
+AFFX-2315060                   1                   1                   1
+AFFX-2315061                   1                   2                   2
+AFFX-2315062                   1                   2                   2
+AFFX-2315057                   1                   1                   2
+AFFX-2315058                   0                   2                   0
+AFFX-2315059                   0                   2                   0
+AFFX-2315063                   1                   1                   0
+AFFX-2315064                   2                   2                   1
+AFFX-2315065                   1                   0                   1
+AFFX-2315066                   2                   2                   2
+             CEU_NA12003_NSP.CEL CEU_NA12004_NSP.CEL CEU_NA12005_NSP.CEL
+AFFX-2315060                   1                   0                   1
+AFFX-2315061                   2                   0                   2
+AFFX-2315062                   1                   0                   1
+AFFX-2315057                   0                   1                   2
+AFFX-2315058                   0                   0                   0
+AFFX-2315059                   0                   2                   2
+AFFX-2315063                   1                   0                   1
+AFFX-2315064                   0                   1                   1
+AFFX-2315065                   0                   1                   2
+AFFX-2315066                   2                   1                   1
+             CEU_NA12006_NSP.CEL CEU_NA12043_NSP.CEL CEU_NA12044_NSP.CEL
+AFFX-2315060                   1                   1                   0
+AFFX-2315061                   2                   0                   1
+AFFX-2315062                   2                   0                   1
+AFFX-2315057                   2                   1                   1
+AFFX-2315058                   0                   0                   0
+AFFX-2315059                   1                   1                   2
+AFFX-2315063                   1                   1                   1
+AFFX-2315064                   0                   1                   1
+AFFX-2315065                   0                   1                   1
+AFFX-2315066                   1                   1                   2
+             CEU_NA12056_NSP.CEL CEU_NA12057_NSP.CEL CEU_NA12144_NSP.CEL
+AFFX-2315060                   1                   1                   2
+AFFX-2315061                   1                   1                   2
+AFFX-2315062                   1                   0                   0
+AFFX-2315057                   2                   2                   1
+AFFX-2315058                   1                   1                   0
+AFFX-2315059                   1                   1                   1
+AFFX-2315063                   1                   0                   0
+AFFX-2315064                   0                   1                   2
+AFFX-2315065                   1                   1                   1
+AFFX-2315066                   2                   1                   1
+             CEU_NA12145_NSP.CEL CEU_NA12146_NSP.CEL CEU_NA12154_NSP.CEL
+AFFX-2315060                   0                   1                   0
+AFFX-2315061                   0                   0                   0
+AFFX-2315062                   1                   2                   1
+AFFX-2315057                   2                   1                   1
+AFFX-2315058                   0                   0                   0
+AFFX-2315059                   2                   1                   1
+AFFX-2315063                   1                   1                   1
+AFFX-2315064                   2                   2                   1
+AFFX-2315065                   2                   0                   0
+AFFX-2315066                   1                   2                   2
+             CEU_NA12155_NSP.CEL CEU_NA12156_NSP.CEL CEU_NA12234_NSP.CEL
+AFFX-2315060                   1                   1                   0
+AFFX-2315061                   2                   1                   0
+AFFX-2315062                   1                   0                   2
+AFFX-2315057                   0                   2                   1
+AFFX-2315058                   1                   0                   0
+AFFX-2315059                   1                   0                   1
+AFFX-2315063                   0                   0                   0
+AFFX-2315064                   2                   2                   1
+AFFX-2315065                   1                   1                   1
+AFFX-2315066                   2                   2                   1
+             CEU_NA12236_NSP.CEL CEU_NA12239_NSP.CEL CEU_NA12248_NSP.CEL
+AFFX-2315060                   2                   1                   1
+AFFX-2315061                   1                   1                   2
+AFFX-2315062                   1                   0                   1
+AFFX-2315057                   1                   1                   0
+AFFX-2315058                   0                   0                   1
+AFFX-2315059                   0                   1                   1
+AFFX-2315063                   0                   1                   2
+AFFX-2315064                   1                   0                   0
+AFFX-2315065                   0                   0                   0
+AFFX-2315066                   2                   2                   2
+             CEU_NA12249_NSP.CEL CEU_NA12264_NSP.CEL CEU_NA12707_NSP.CEL
+AFFX-2315060                   1                   1                   0
+AFFX-2315061                   0                   1                   1
+AFFX-2315062                   1                   1                   2
+AFFX-2315057                   1                   1                   1
+AFFX-2315058                   1                   0                   0
+AFFX-2315059                   1                   1                   1
+AFFX-2315063                   2                   1                   2
+AFFX-2315064                   1                   0                   0
+AFFX-2315065                   1                   0                   1
+AFFX-2315066                   2                   1                   2
+             CEU_NA12716_NSP.CEL CEU_NA12717_NSP.CEL CEU_NA12740_NSP.CEL
+AFFX-2315060                   1                   0                   0
+AFFX-2315061                   1                   2                   1
+AFFX-2315062                   1                   2                   0
+AFFX-2315057                   1                   1                   2
+AFFX-2315058                   0                   0                   1
+AFFX-2315059                   0                   1                   0
+AFFX-2315063                   1                   1                   1
+AFFX-2315064                   1                   0                   0
+AFFX-2315065                   1                   1                   1
+AFFX-2315066                   2                   2                   2
+             CEU_NA12750_NSP.CEL CEU_NA12751_NSP.CEL CEU_NA12752_NSP.CEL
+AFFX-2315060                   0                   0                   2
+AFFX-2315061                   2                   0                   2
+AFFX-2315062                   0                   0                   2
+AFFX-2315057                   2                   2                   1
+AFFX-2315058                   0                   1                   1
+AFFX-2315059                   0                   1                   1
+AFFX-2315063                   1                   1                   2
+AFFX-2315064                   0                   0                   0
+AFFX-2315065                   1                   1                   1
+AFFX-2315066                   2                   2                   1
+             CEU_NA12753_NSP.CEL CEU_NA12760_NSP.CEL CEU_NA12761_NSP.CEL
+AFFX-2315060                   2                   1                   2
+AFFX-2315061                   2                   2                   1
+AFFX-2315062                   1                   1                   2
+AFFX-2315057                   2                   2                   0
+AFFX-2315058                   0                   2                   0
+AFFX-2315059                   1                   1                   1
+AFFX-2315063                   0                   2                   1
+AFFX-2315064                   1                   1                   0
+AFFX-2315065                   1                   1                   1
+AFFX-2315066                   2                   1                   1
+             CEU_NA12762_NSP.CEL CEU_NA12763_NSP.CEL CEU_NA12801_NSP.CEL
+AFFX-2315060                   1                   1                   1
+AFFX-2315061                   2                   2                   1
+AFFX-2315062                   2                   1                   1
+AFFX-2315057                   2                   2                   1
+AFFX-2315058                   0                   0                   1
+AFFX-2315059                   0                   1                   1
+AFFX-2315063                   0                   0                   1
+AFFX-2315064                   1                   2                   1
+AFFX-2315065                   2                   0                   1
+AFFX-2315066                   1                   2                   2
+             CEU_NA12802_NSP.CEL CEU_NA12812_NSP.CEL CEU_NA12813_NSP.CEL
+AFFX-2315060                   1                   1                   0
+AFFX-2315061                   0                   2                   1
+AFFX-2315062                   1                   0                   1
+AFFX-2315057                   2                   1                   1
+AFFX-2315058                   0                   1                   0
+AFFX-2315059                   0                   0                   1
+AFFX-2315063                   1                   1                   2
+AFFX-2315064                   0                   0                   2
+AFFX-2315065                   1                   1                   1
+AFFX-2315066                   2                   2                   1
+             CEU_NA12814_NSP.CEL CEU_NA12815_NSP.CEL CEU_NA12864_NSP.CEL
+AFFX-2315060                   2                   0                   1
+AFFX-2315061                   0                   0                   2
+AFFX-2315062                   2                   0                   1
+AFFX-2315057                   1                   2                   0
+AFFX-2315058                   0                   0                   1
+AFFX-2315059                   1                   0                   2
+AFFX-2315063                   1                   1                   2
+AFFX-2315064                   1                   1                   1
+AFFX-2315065                   1                   2                   0
+AFFX-2315066                   2                   2                   2
+             CEU_NA12865_NSP.CEL CEU_NA12872_NSP.CEL CEU_NA12873_NSP.CEL
+AFFX-2315060                   1                   2                   0
+AFFX-2315061                   2                   2                   2
+AFFX-2315062                   1                   1                   1
+AFFX-2315057                   2                   0                   0
+AFFX-2315058                   0                   1                   0
+AFFX-2315059                   1                   1                   2
+AFFX-2315063                   1                   1                   2
+AFFX-2315064                   0                   1                   1
+AFFX-2315065                   1                   1                   0
+AFFX-2315066                   2                   2                   1
+             CEU_NA12874_NSP.CEL CEU_NA12875_NSP.CEL CEU_NA12878_NSP.CEL
+AFFX-2315060                   1                   1                   0
+AFFX-2315061                   2                   1                   1
+AFFX-2315062                   0                   1                   0
+AFFX-2315057                   2                   1                   1
+AFFX-2315058                   0                   0                   0
+AFFX-2315059                   2                   1                   0
+AFFX-2315063                   1                   0                   2
+AFFX-2315064                   0                   0                   1
+AFFX-2315065                   2                   0                   0
+AFFX-2315066                   2                   2                   1
+             CEU_NA12891_NSP.CEL CEU_NA12892_NSP.CEL CHB.JPT_NA18524_NSP.CEL
+AFFX-2315060                   1                   0                       0
+AFFX-2315061                   0                   2                       0
+AFFX-2315062                   1                   0                       1
+AFFX-2315057                   1                   0                       0
+AFFX-2315058                   0                   0                       1
+AFFX-2315059                   0                   1                       2
+AFFX-2315063                   1                   2                       1
+AFFX-2315064                   0                   2                       0
+AFFX-2315065                   0                   1                       1
+AFFX-2315066                   2                   0                       0
+             CHB.JPT_NA18526_NSP.CEL CHB.JPT_NA18529_NSP.CEL
+AFFX-2315060                       1                       0
+AFFX-2315061                       1                       1
+AFFX-2315062                       1                       1
+AFFX-2315057                       1                       1
+AFFX-2315058                       2                       2
+AFFX-2315059                       0                       1
+AFFX-2315063                       1                       1
+AFFX-2315064                       0                       1
+AFFX-2315065                       2                       2
+AFFX-2315066                       0                       1
+             CHB.JPT_NA18532_NSP.CEL CHB.JPT_NA18537_NSP.CEL
+AFFX-2315060                       2                       1
+AFFX-2315061                       0                       0
+AFFX-2315062                       1                       1
+AFFX-2315057                       2                       1
+AFFX-2315058                       1                       0
+AFFX-2315059                       2                       2
+AFFX-2315063                       2                       1
+AFFX-2315064                       2                       2
+AFFX-2315065                       1                       2
+AFFX-2315066                       2                       1
+             CHB.JPT_NA18540_NSP.CEL CHB.JPT_NA18542_NSP.CEL
+AFFX-2315060                       2                       1
+AFFX-2315061                       0                       0
+AFFX-2315062                      -1                       1
+AFFX-2315057                       1                       0
+AFFX-2315058                       1                       1
+AFFX-2315059                       1                       1
+AFFX-2315063                       1                       2
+AFFX-2315064                       2                       1
+AFFX-2315065                       1                       2
+AFFX-2315066                       0                       0
+             CHB.JPT_NA18545_NSP.CEL CHB.JPT_NA18547_NSP.CEL
+AFFX-2315060                       1                       1
+AFFX-2315061                       0                       0
+AFFX-2315062                       2                       0
+AFFX-2315057                       1                       1
+AFFX-2315058                       2                       0
+AFFX-2315059                       1                       2
+AFFX-2315063                       0                       0
+AFFX-2315064                       2                       1
+AFFX-2315065                       2                       1
+AFFX-2315066                       0                       1
+             CHB.JPT_NA18550_NSP.CEL CHB.JPT_NA18552_NSP.CEL
+AFFX-2315060                       0                       0
+AFFX-2315061                       0                       0
+AFFX-2315062                       0                       1
+AFFX-2315057                       1                       1
+AFFX-2315058                       2                       2
+AFFX-2315059                       1                       1
+AFFX-2315063                       2                       2
+AFFX-2315064                       1                       0
+AFFX-2315065                       1                       1
+AFFX-2315066                       1                       2
+             CHB.JPT_NA18555_NSP.CEL CHB.JPT_NA18558_NSP.CEL
+AFFX-2315060                       1                       0
+AFFX-2315061                       0                       0
+AFFX-2315062                       0                       1
+AFFX-2315057                       1                       1
+AFFX-2315058                       2                       1
+AFFX-2315059                       2                       1
+AFFX-2315063                       0                       2
+AFFX-2315064                       2                       1
+AFFX-2315065                       1                       2
+AFFX-2315066                       1                       1
+             CHB.JPT_NA18561_NSP.CEL CHB.JPT_NA18562_NSP.CEL
+AFFX-2315060                       0                       1
+AFFX-2315061                       0                       1
+AFFX-2315062                       0                       2
+AFFX-2315057                       2                       1
+AFFX-2315058                       2                       1
+AFFX-2315059                       1                       2
+AFFX-2315063                       2                       1
+AFFX-2315064                       2                       1
+AFFX-2315065                       1                       1
+AFFX-2315066                       0                       0
+             CHB.JPT_NA18563_NSP.CEL CHB.JPT_NA18564_NSP.CEL
+AFFX-2315060                       1                       1
+AFFX-2315061                       2                       0
+AFFX-2315062                       0                       1
+AFFX-2315057                       2                       1
+AFFX-2315058                       1                       1
+AFFX-2315059                       2                       1
+AFFX-2315063                       2                       1
+AFFX-2315064                       2                       0
+AFFX-2315065                       1                       2
+AFFX-2315066                       0                       0
+             CHB.JPT_NA18566_NSP.CEL CHB.JPT_NA18570_NSP.CEL
+AFFX-2315060                       1                       1
+AFFX-2315061                       0                       1
+AFFX-2315062                       0                       1
+AFFX-2315057                       1                       2
+AFFX-2315058                       1                       1
+AFFX-2315059                       1                       0
+AFFX-2315063                       1                       0
+AFFX-2315064                       1                       1
+AFFX-2315065                       2                       2
+AFFX-2315066                       1                       1
+             CHB.JPT_NA18571_NSP.CEL CHB.JPT_NA18572_NSP.CEL
+AFFX-2315060                       0                       1
+AFFX-2315061                       1                       0
+AFFX-2315062                       0                       0
+AFFX-2315057                       1                       0
+AFFX-2315058                       2                       2
+AFFX-2315059                       0                       0
+AFFX-2315063                       2                       2
+AFFX-2315064                       2                       1
+AFFX-2315065                       0                       2
+AFFX-2315066                       0                       2
+             CHB.JPT_NA18573_NSP.CEL CHB.JPT_NA18576_NSP.CEL
+AFFX-2315060                       0                       1
+AFFX-2315061                       1                       0
+AFFX-2315062                       1                       0
+AFFX-2315057                       2                       1
+AFFX-2315058                       0                       1
+AFFX-2315059                       2                       2
+AFFX-2315063                       1                       0
+AFFX-2315064                       0                       1
+AFFX-2315065                       2                       1
+AFFX-2315066                       1                       1
+             CHB.JPT_NA18577_NSP.CEL CHB.JPT_NA18579_NSP.CEL
+AFFX-2315060                       1                       2
+AFFX-2315061                       0                       0
+AFFX-2315062                       0                       1
+AFFX-2315057                       2                       1
+AFFX-2315058                       2                       2
+AFFX-2315059                       2                       1
+AFFX-2315063                       1                       2
+AFFX-2315064                       2                       1
+AFFX-2315065                       2                       1
+AFFX-2315066                       1                       1
+             CHB.JPT_NA18582_NSP.CEL CHB.JPT_NA18592_NSP.CEL
+AFFX-2315060                       0                       1
+AFFX-2315061                       1                       0
+AFFX-2315062                       1                       1
+AFFX-2315057                       2                       1
+AFFX-2315058                       1                       1
+AFFX-2315059                       0                       1
+AFFX-2315063                       2                       1
+AFFX-2315064                       1                       0
+AFFX-2315065                       2                       2
+AFFX-2315066                       0                       1
+             CHB.JPT_NA18593_NSP.CEL CHB.JPT_NA18594_NSP.CEL
+AFFX-2315060                       0                       0
+AFFX-2315061                       0                       0
+AFFX-2315062                       1                       0
+AFFX-2315057                       1                       2
+AFFX-2315058                       1                       2
+AFFX-2315059                       1                       1
+AFFX-2315063                       2                       0
+AFFX-2315064                       1                       1
+AFFX-2315065                       1                       1
+AFFX-2315066                       1                       1
+             CHB.JPT_NA18603_NSP.CEL CHB.JPT_NA18605_NSP.CEL
+AFFX-2315060                       2                       1
+AFFX-2315061                       0                       0
+AFFX-2315062                       1                       0
+AFFX-2315057                       1                       1
+AFFX-2315058                       2                       1
+AFFX-2315059                       1                       2
+AFFX-2315063                       2                       2
+AFFX-2315064                       1                       2
+AFFX-2315065                       2                       2
+AFFX-2315066                       0                       1
+             CHB.JPT_NA18608_NSP.CEL CHB.JPT_NA18609_NSP.CEL
+AFFX-2315060                       1                       2
+AFFX-2315061                       1                       1
+AFFX-2315062                       1                       1
+AFFX-2315057                       0                       1
+AFFX-2315058                       1                       1
+AFFX-2315059                       0                       1
+AFFX-2315063                       1                       0
+AFFX-2315064                       2                       2
+AFFX-2315065                       2                       0
+AFFX-2315066                       1                       0
+             CHB.JPT_NA18611_NSP.CEL CHB.JPT_NA18612_NSP.CEL
+AFFX-2315060                       1                       1
+AFFX-2315061                       0                       0
+AFFX-2315062                       1                       1
+AFFX-2315057                       1                       1
+AFFX-2315058                       1                       2
+AFFX-2315059                       2                       1
+AFFX-2315063                       1                       1
+AFFX-2315064                       2                       1
+AFFX-2315065                       2                       2
+AFFX-2315066                       0                       1
+             CHB.JPT_NA18620_NSP.CEL CHB.JPT_NA18621_NSP.CEL
+AFFX-2315060                       1                       1
+AFFX-2315061                       0                       0
+AFFX-2315062                       1                       0
+AFFX-2315057                       2                       1
+AFFX-2315058                       1                       2
+AFFX-2315059                       0                       1
+AFFX-2315063                       2                       1
+AFFX-2315064                       1                       1
+AFFX-2315065                       2                       1
+AFFX-2315066                       0                       0
+             CHB.JPT_NA18622_NSP.CEL CHB.JPT_NA18623_NSP.CEL
+AFFX-2315060                       0                       1
+AFFX-2315061                       0                       0
+AFFX-2315062                       1                       0
+AFFX-2315057                       2                       1
+AFFX-2315058                       2                       0
+AFFX-2315059                       2                       1
+AFFX-2315063                       2                       1
+AFFX-2315064                       0                       2
+AFFX-2315065                       2                       0
+AFFX-2315066                       1                       2
+             CHB.JPT_NA18624_NSP.CEL CHB.JPT_NA18632_NSP.CEL
+AFFX-2315060                       2                       0
+AFFX-2315061                       0                       0
+AFFX-2315062                       0                       1
+AFFX-2315057                       1                       2
+AFFX-2315058                       1                       2
+AFFX-2315059                       2                       1
+AFFX-2315063                       1                       1
+AFFX-2315064                       1                       1
+AFFX-2315065                       2                       2
+AFFX-2315066                       1                       0
+             CHB.JPT_NA18633_NSP.CEL CHB.JPT_NA18635_NSP.CEL
+AFFX-2315060                       0                       2
+AFFX-2315061                       0                       0
+AFFX-2315062                       1                       1
+AFFX-2315057                       0                       1
+AFFX-2315058                       2                       1
+AFFX-2315059                       2                       2
+AFFX-2315063                       0                       1
+AFFX-2315064                       2                       2
+AFFX-2315065                       2                       1
+AFFX-2315066                       0                       0
+             CHB.JPT_NA18636_NSP.CEL CHB.JPT_NA18637_NSP.CEL
+AFFX-2315060                       1                       1
+AFFX-2315061                       1                       0
+AFFX-2315062                       1                       1
+AFFX-2315057                       0                       0
+AFFX-2315058                       1                       1
+AFFX-2315059                       1                       1
+AFFX-2315063                       1                       2
+AFFX-2315064                       0                       1
+AFFX-2315065                       2                       2
+AFFX-2315066                       2                       1
+             CHB.JPT_NA18940_NSP.CEL CHB.JPT_NA18942_NSP.CEL
+AFFX-2315060                       1                       2
+AFFX-2315061                       0                       0
+AFFX-2315062                       1                       1
+AFFX-2315057                       1                       2
+AFFX-2315058                       1                       0
+AFFX-2315059                       0                       1
+AFFX-2315063                       2                       1
+AFFX-2315064                       1                       0
+AFFX-2315065                       2                       2
+AFFX-2315066                       1                       0
+             CHB.JPT_NA18943_NSP.CEL CHB.JPT_NA18944_NSP.CEL
+AFFX-2315060                       1                       0
+AFFX-2315061                       0                       0
+AFFX-2315062                       1                       0
+AFFX-2315057                       1                       2
+AFFX-2315058                       1                       1
+AFFX-2315059                       0                       1
+AFFX-2315063                       1                       2
+AFFX-2315064                       1                       2
+AFFX-2315065                       2                       1
+AFFX-2315066                       1                       0
+             CHB.JPT_NA18945_NSP.CEL CHB.JPT_NA18947_NSP.CEL
+AFFX-2315060                       0                       0
+AFFX-2315061                       0                       2
+AFFX-2315062                       0                       0
+AFFX-2315057                       2                       1
+AFFX-2315058                       1                       1
+AFFX-2315059                       1                       1
+AFFX-2315063                       1                       1
+AFFX-2315064                       1                       2
+AFFX-2315065                       2                       2
+AFFX-2315066                       0                       1
+             CHB.JPT_NA18948_NSP.CEL CHB.JPT_NA18949_NSP.CEL
+AFFX-2315060                       1                       2
+AFFX-2315061                       0                       1
+AFFX-2315062                       1                       1
+AFFX-2315057                       1                       0
+AFFX-2315058                       1                       2
+AFFX-2315059                       0                       1
+AFFX-2315063                       0                       0
+AFFX-2315064                       1                       2
+AFFX-2315065                       2                       1
+AFFX-2315066                       0                       1
+             CHB.JPT_NA18951_NSP.CEL CHB.JPT_NA18952_NSP.CEL
+AFFX-2315060                       1                       0
+AFFX-2315061                       0                       1
+AFFX-2315062                       0                       1
+AFFX-2315057                       1                       1
+AFFX-2315058                       1                       2
+AFFX-2315059                       1                       0
+AFFX-2315063                       1                       0
+AFFX-2315064                       2                       2
+AFFX-2315065                       1                       0
+AFFX-2315066                       0                       2
+             CHB.JPT_NA18953_NSP.CEL CHB.JPT_NA18956_NSP.CEL
+AFFX-2315060                       0                       2
+AFFX-2315061                       0                       2
+AFFX-2315062                       2                       1
+AFFX-2315057                       2                       1
+AFFX-2315058                       2                       1
+AFFX-2315059                       1                       2
+AFFX-2315063                       0                       2
+AFFX-2315064                       1                       0
+AFFX-2315065                       1                       2
+AFFX-2315066                       0                       1
+             CHB.JPT_NA18959_NSP.CEL CHB.JPT_NA18960_NSP.CEL
+AFFX-2315060                       0                       1
+AFFX-2315061                       0                       0
+AFFX-2315062                       1                       2
+AFFX-2315057                       1                       1
+AFFX-2315058                       2                       2
+AFFX-2315059                       1                       1
+AFFX-2315063                       2                       1
+AFFX-2315064                       0                       2
+AFFX-2315065                       2                       1
+AFFX-2315066                       0                       0
+             CHB.JPT_NA18961_NSP.CEL CHB.JPT_NA18964_NSP.CEL
+AFFX-2315060                       1                       0
+AFFX-2315061                       0                       0
+AFFX-2315062                       0                       1
+AFFX-2315057                       2                       1
+AFFX-2315058                       0                       1
+AFFX-2315059                       1                       0
+AFFX-2315063                       2                       1
+AFFX-2315064                       1                       1
+AFFX-2315065                       1                       0
+AFFX-2315066                       0                       1
+             CHB.JPT_NA18965_NSP.CEL CHB.JPT_NA18966_NSP.CEL
+AFFX-2315060                       1                       1
+AFFX-2315061                       0                       0
+AFFX-2315062                       1                       1
+AFFX-2315057                       1                       0
+AFFX-2315058                       1                       1
+AFFX-2315059                       1                       0
+AFFX-2315063                       2                       2
+AFFX-2315064                       1                       1
+AFFX-2315065                       1                       1
+AFFX-2315066                       0                       0
+             CHB.JPT_NA18967_NSP.CEL CHB.JPT_NA18968_NSP.CEL
+AFFX-2315060                       0                       0
+AFFX-2315061                       0                       0
+AFFX-2315062                       0                       0
+AFFX-2315057                       2                       1
+AFFX-2315058                       1                       2
+AFFX-2315059                       2                       1
+AFFX-2315063                       2                       2
+AFFX-2315064                       1                       2
+AFFX-2315065                       2                       1
+AFFX-2315066                       0                       1
+             CHB.JPT_NA18969_NSP.CEL CHB.JPT_NA18970_NSP.CEL
+AFFX-2315060                       0                       0
+AFFX-2315061                       1                       0
+AFFX-2315062                       1                       1
+AFFX-2315057                       2                       1
+AFFX-2315058                       1                       1
+AFFX-2315059                       1                       1
+AFFX-2315063                       2                       1
+AFFX-2315064                       1                       2
+AFFX-2315065                       1                       1
+AFFX-2315066                       0                       0
+             CHB.JPT_NA18971_NSP.CEL CHB.JPT_NA18972_NSP.CEL
+AFFX-2315060                       0                       0
+AFFX-2315061                       0                       0
+AFFX-2315062                       2                       1
+AFFX-2315057                       1                       2
+AFFX-2315058                       0                       1
+AFFX-2315059                       1                       1
+AFFX-2315063                       0                       2
+AFFX-2315064                       1                       0
+AFFX-2315065                       2                       1
+AFFX-2315066                       0                       0
+             CHB.JPT_NA18973_NSP.CEL CHB.JPT_NA18974_NSP.CEL
+AFFX-2315060                       1                       0
+AFFX-2315061                       0                       1
+AFFX-2315062                       2                       2
+AFFX-2315057                       1                       2
+AFFX-2315058                       1                       1
+AFFX-2315059                       2                       1
+AFFX-2315063                       1                       2
+AFFX-2315064                       0                       1
+AFFX-2315065                       0                       2
+AFFX-2315066                       1                       1
+             CHB.JPT_NA18975_NSP.CEL CHB.JPT_NA18976_NSP.CEL
+AFFX-2315060                       1                       2
+AFFX-2315061                       0                       0
+AFFX-2315062                       1                       0
+AFFX-2315057                       1                       1
+AFFX-2315058                       1                       1
+AFFX-2315059                       1                       1
+AFFX-2315063                       2                       2
+AFFX-2315064                       0                       1
+AFFX-2315065                       1                       2
+AFFX-2315066                       1                       0
+             CHB.JPT_NA18978_NSP.CEL CHB.JPT_NA18980_NSP.CEL
+AFFX-2315060                       1                       0
+AFFX-2315061                       1                       1
+AFFX-2315062                       0                       0
+AFFX-2315057                       2                       1
+AFFX-2315058                       2                       2
+AFFX-2315059                       1                       1
+AFFX-2315063                       2                       2
+AFFX-2315064                       1                       1
+AFFX-2315065                       0                       1
+AFFX-2315066                       2                       0
+             CHB.JPT_NA18981_NSP.CEL CHB.JPT_NA18987_NSP.CEL
+AFFX-2315060                       2                       1
+AFFX-2315061                       0                       1
+AFFX-2315062                       0                       2
+AFFX-2315057                       0                       0
+AFFX-2315058                       1                       1
+AFFX-2315059                       1                       0
+AFFX-2315063                       0                       1
+AFFX-2315064                       1                       0
+AFFX-2315065                       0                       1
+AFFX-2315066                       1                       1
+             CHB.JPT_NA18990_NSP.CEL CHB.JPT_NA18991_NSP.CEL
+AFFX-2315060                       1                       1
+AFFX-2315061                       1                       0
+AFFX-2315062                       0                       1
+AFFX-2315057                       1                       2
+AFFX-2315058                       2                       1
+AFFX-2315059                       2                       2
+AFFX-2315063                       2                       0
+AFFX-2315064                       1                       1
+AFFX-2315065                       2                       1
+AFFX-2315066                       1                       1
+             CHB.JPT_NA18992_NSP.CEL CHB.JPT_NA18994_NSP.CEL
+AFFX-2315060                       1                       0
+AFFX-2315061                       1                       1
+AFFX-2315062                       0                       1
+AFFX-2315057                       1                       1
+AFFX-2315058                       1                       2
+AFFX-2315059                       1                       1
+AFFX-2315063                       2                       1
+AFFX-2315064                       2                       2
+AFFX-2315065                       2                       2
+AFFX-2315066                       2                       1
+             CHB.JPT_NA18995_NSP.CEL CHB.JPT_NA18997_NSP.CEL
+AFFX-2315060                       1                       0
+AFFX-2315061                       0                       0
+AFFX-2315062                       0                       0
+AFFX-2315057                       1                       1
+AFFX-2315058                       1                       2
+AFFX-2315059                       0                       0
+AFFX-2315063                       1                       1
+AFFX-2315064                       2                       2
+AFFX-2315065                       0                       1
+AFFX-2315066                       2                       1
+             CHB.JPT_NA18998_NSP.CEL CHB.JPT_NA18999_NSP.CEL
+AFFX-2315060                       1                       0
+AFFX-2315061                       1                       0
+AFFX-2315062                       0                       0
+AFFX-2315057                       0                       0
+AFFX-2315058                       1                       1
+AFFX-2315059                       2                       1
+AFFX-2315063                       1                       2
+AFFX-2315064                       1                       0
+AFFX-2315065                       2                       0
+AFFX-2315066                       1                       1
+             CHB.JPT_NA19000_NSP.CEL CHB.JPT_NA19003_NSP.CEL
+AFFX-2315060                       0                       1
+AFFX-2315061                       1                       0
+AFFX-2315062                       1                       0
+AFFX-2315057                       2                       2
+AFFX-2315058                       2                       0
+AFFX-2315059                       1                       2
+AFFX-2315063                       2                       1
+AFFX-2315064                       0                       1
+AFFX-2315065                       1                       2
+AFFX-2315066                       1                       1
+             CHB.JPT_NA19005_NSP.CEL CHB.JPT_NA19007_NSP.CEL
+AFFX-2315060                       1                       2
+AFFX-2315061                       0                       0
+AFFX-2315062                       1                       2
+AFFX-2315057                       1                       2
+AFFX-2315058                       0                       1
+AFFX-2315059                       2                       1
+AFFX-2315063                       2                       2
+AFFX-2315064                       1                       0
+AFFX-2315065                       2                       1
+AFFX-2315066                       1                       1
+             CHB.JPT_NA19012_NSP.CEL YRI_NA18500_NSP.CEL YRI_NA18501_NSP.CEL
+AFFX-2315060                       2                   2                   2
+AFFX-2315061                       1                   2                   1
+AFFX-2315062                       1                   1                   2
+AFFX-2315057                       2                   0                   0
+AFFX-2315058                       2                   2                   1
+AFFX-2315059                       1                   1                   1
+AFFX-2315063                       2                   2                   1
+AFFX-2315064                       0                   0                   1
+AFFX-2315065                       1                   1                   1
+AFFX-2315066                       0                   0                   0
+             YRI_NA18502_NSP.CEL YRI_NA18503_NSP.CEL YRI_NA18504_NSP.CEL
+AFFX-2315060                   2                   1                   2
+AFFX-2315061                   1                   2                   1
+AFFX-2315062                   0                   1                   2
+AFFX-2315057                   1                   0                   0
+AFFX-2315058                  -1                   2                   2
+AFFX-2315059                   1                   0                   1
+AFFX-2315063                   1                   1                   1
+AFFX-2315064                   0                   1                   0
+AFFX-2315065                   1                   1                   1
+AFFX-2315066                   1                   0                   0
+             YRI_NA18505_NSP.CEL YRI_NA18506_NSP.CEL YRI_NA18507_NSP.CEL
+AFFX-2315060                   1                   1                   2
+AFFX-2315061                   2                   2                   2
+AFFX-2315062                   0                   1                   1
+AFFX-2315057                   0                   0                   0
+AFFX-2315058                   2                   2                   2
+AFFX-2315059                   0                   0                   1
+AFFX-2315063                   0                   0                   1
+AFFX-2315064                   1                   0                   0
+AFFX-2315065                   1                   2                   1
+AFFX-2315066                   1                   0                   0
+             YRI_NA18508_NSP.CEL YRI_NA18515_NSP.CEL YRI_NA18516_NSP.CEL
+AFFX-2315060                   1                   1                   1
+AFFX-2315061                   1                   1                   1
+AFFX-2315062                   2                   2                   2
+AFFX-2315057                   1                   1                   1
+AFFX-2315058                   2                   2                   2
+AFFX-2315059                   0                   1                   1
+AFFX-2315063                   1                   1                   2
+AFFX-2315064                   0                   1                   2
+AFFX-2315065                   2                   0                   0
+AFFX-2315066                   0                   0                   0
+             YRI_NA18517_NSP.CEL YRI_NA18521_NSP.CEL YRI_NA18522_NSP.CEL
+AFFX-2315060                   1                   1                   1
+AFFX-2315061                   1                   0                   0
+AFFX-2315062                   2                   1                   1
+AFFX-2315057                   1                   0                   0
+AFFX-2315058                   2                   2                   2
+AFFX-2315059                   1                   0                   1
+AFFX-2315063                   1                   2                   1
+AFFX-2315064                   0                   1                   1
+AFFX-2315065                   1                   0                   1
+AFFX-2315066                   0                   0                   1
+             YRI_NA18523_NSP.CEL YRI_NA18852_NSP.CEL YRI_NA18853_NSP.CEL
+AFFX-2315060                   2                   1                   2
+AFFX-2315061                   1                   1                   2
+AFFX-2315062                   0                   1                   1
+AFFX-2315057                   1                  -1                   1
+AFFX-2315058                   2                   1                   1
+AFFX-2315059                   1                   2                   1
+AFFX-2315063                   1                   0                   1
+AFFX-2315064                   2                   0                   0
+AFFX-2315065                   0                   0                   0
+AFFX-2315066                   0                   0                   1
+             YRI_NA18854_NSP.CEL YRI_NA18855_NSP.CEL YRI_NA18856_NSP.CEL
+AFFX-2315060                   2                   2                   2
+AFFX-2315061                   2                   2                   2
+AFFX-2315062                   1                   1                   1
+AFFX-2315057                   0                   1                   1
+AFFX-2315058                   0                   2                   2
+AFFX-2315059                   2                   1                   1
+AFFX-2315063                   0                   1                   2
+AFFX-2315064                   0                   1                   1
+AFFX-2315065                   0                   0                   2
+AFFX-2315066                   1                   0                   0
+             YRI_NA18857_NSP.CEL YRI_NA18858_NSP.CEL YRI_NA18859_NSP.CEL
+AFFX-2315060                   2                   1                   2
+AFFX-2315061                   2                   1                   2
+AFFX-2315062                   1                   2                   2
+AFFX-2315057                   1                   0                   1
+AFFX-2315058                   2                   2                   1
+AFFX-2315059                   1                   1                   0
+AFFX-2315063                   1                   1                   1
+AFFX-2315064                   1                   2                   1
+AFFX-2315065                   1                   1                   2
+AFFX-2315066                   0                   0                   2
+             YRI_NA18860_NSP.CEL YRI_NA18861_NSP.CEL YRI_NA18862_NSP.CEL
+AFFX-2315060                   2                   1                   0
+AFFX-2315061                   1                   1                   2
+AFFX-2315062                   2                   0                   0
+AFFX-2315057                   1                   2                   1
+AFFX-2315058                   2                   2                   2
+AFFX-2315059                   1                   0                   1
+AFFX-2315063                   1                   1                   0
+AFFX-2315064                   1                   1                   0
+AFFX-2315065                   1                   1                   0
+AFFX-2315066                   1                   1                   1
+             YRI_NA18863_NSP.CEL YRI_NA18870_NSP.CEL YRI_NA18871_NSP.CEL
+AFFX-2315060                   0                   1                   0
+AFFX-2315061                   1                   2                   2
+AFFX-2315062                   0                   2                   0
+AFFX-2315057                   2                   0                   1
+AFFX-2315058                   2                   1                   1
+AFFX-2315059                   0                   2                   0
+AFFX-2315063                   1                   1                   1
+AFFX-2315064                   0                   2                   2
+AFFX-2315065                   1                   1                   2
+AFFX-2315066                   0                   0                   1
+             YRI_NA18872_NSP.CEL YRI_NA18912_NSP.CEL YRI_NA18913_NSP.CEL
+AFFX-2315060                   1                   1                   1
+AFFX-2315061                   2                   2                   2
+AFFX-2315062                   1                   2                   1
+AFFX-2315057                   1                   0                   2
+AFFX-2315058                   1                   1                   2
+AFFX-2315059                   1                   1                   2
+AFFX-2315063                   2                   0                   1
+AFFX-2315064                   2                   0                   1
+AFFX-2315065                   1                   2                   1
+AFFX-2315066                   1                   0                   0
+             YRI_NA18914_NSP.CEL YRI_NA19092_NSP.CEL YRI_NA19093_NSP.CEL
+AFFX-2315060                   2                   1                   1
+AFFX-2315061                   2                   1                   2
+AFFX-2315062                   2                   1                   1
+AFFX-2315057                   1                   2                   0
+AFFX-2315058                   2                   2                   2
+AFFX-2315059                   1                   1                   1
+AFFX-2315063                   1                   1                   1
+AFFX-2315064                   0                   1                   1
+AFFX-2315065                   1                   0                   2
+AFFX-2315066                   0                   0                   0
+             YRI_NA19094_NSP.CEL YRI_NA19098_NSP.CEL YRI_NA19099_NSP.CEL
+AFFX-2315060                   1                   0                   2
+AFFX-2315061                   2                   2                   2
+AFFX-2315062                   2                   0                   2
+AFFX-2315057                   1                   0                   1
+AFFX-2315058                   2                   1                   1
+AFFX-2315059                   1                   1                   1
+AFFX-2315063                   0                   1                   1
+AFFX-2315064                   0                   1                   1
+AFFX-2315065                   1                   1                   1
+AFFX-2315066                   0                   1                   1
+             YRI_NA19100_NSP.CEL YRI_NA19101_NSP.CEL YRI_NA19102_NSP.CEL
+AFFX-2315060                   1                   1                   1
+AFFX-2315061                   2                   1                   0
+AFFX-2315062                   1                   1                   1
+AFFX-2315057                   1                   0                   1
+AFFX-2315058                   0                   1                   1
+AFFX-2315059                   1                   1                   0
+AFFX-2315063                   0                   2                   0
+AFFX-2315064                   1                   1                   1
+AFFX-2315065                   0                   0                   1
+AFFX-2315066                   0                   1                   0
+             YRI_NA19103_NSP.CEL YRI_NA19116_NSP.CEL YRI_NA19119_NSP.CEL
+AFFX-2315060                   2                   2                   1
+AFFX-2315061                   1                   1                   1
+AFFX-2315062                   2                   1                   1
+AFFX-2315057                   2                   0                   0
+AFFX-2315058                   0                   2                   2
+AFFX-2315059                   0                   0                   1
+AFFX-2315063                   1                   0                   0
+AFFX-2315064                   1                   0                   0
+AFFX-2315065                   0                   1                   1
+AFFX-2315066                   1                   1                   0
+             YRI_NA19120_NSP.CEL YRI_NA19127_NSP.CEL YRI_NA19128_NSP.CEL
+AFFX-2315060                   2                   1                   0
+AFFX-2315061                   0                   1                   2
+AFFX-2315062                   0                   2                   0
+AFFX-2315057                   0                   1                   0
+AFFX-2315058                   2                   1                   2
+AFFX-2315059                   1                   1                   0
+AFFX-2315063                   0                   1                   1
+AFFX-2315064                   0                   2                   0
+AFFX-2315065                   1                   0                   1
+AFFX-2315066                   0                   1                   0
+             YRI_NA19129_NSP.CEL YRI_NA19130_NSP.CEL YRI_NA19131_NSP.CEL
+AFFX-2315060                   1                   1                   1
+AFFX-2315061                   2                   2                   1
+AFFX-2315062                   1                   1                   1
+AFFX-2315057                   0                   2                   1
+AFFX-2315058                   2                   0                   1
+AFFX-2315059                   1                   1                   1
+AFFX-2315063                   1                   2                   0
+AFFX-2315064                   1                   2                   1
+AFFX-2315065                   1                   0                   1
+AFFX-2315066                   1                   1                   0
+             YRI_NA19132_NSP.CEL YRI_NA19137_NSP.CEL YRI_NA19138_NSP.CEL
+AFFX-2315060                   0                   1                   2
+AFFX-2315061                   1                   2                   0
+AFFX-2315062                   0                   0                  -1
+AFFX-2315057                   2                   2                  -1
+AFFX-2315058                   1                   1                  -1
+AFFX-2315059                   0                   0                  -1
+AFFX-2315063                   1                   0                   0
+AFFX-2315064                   2                   1                  -1
+AFFX-2315065                   0                   1                   0
+AFFX-2315066                   0                   0                   0
+             YRI_NA19139_NSP.CEL YRI_NA19140_NSP.CEL YRI_NA19141_NSP.CEL
+AFFX-2315060                   0                   2                   2
+AFFX-2315061                   2                   2                   1
+AFFX-2315062                   1                   2                   1
+AFFX-2315057                   0                   0                   2
+AFFX-2315058                   2                   2                   2
+AFFX-2315059                   0                   1                   1
+AFFX-2315063                   0                   1                   0
+AFFX-2315064                   1                   0                   0
+AFFX-2315065                   1                   1                   0
+AFFX-2315066                   0                   0                   0
+             YRI_NA19142_NSP.CEL YRI_NA19143_NSP.CEL YRI_NA19144_NSP.CEL
+AFFX-2315060                   2                   1                   1
+AFFX-2315061                   1                   2                   0
+AFFX-2315062                   2                   2                   0
+AFFX-2315057                   1                   2                  -1
+AFFX-2315058                   2                   2                   2
+AFFX-2315059                   0                   0                   0
+AFFX-2315063                   1                   2                   0
+AFFX-2315064                   0                   2                   2
+AFFX-2315065                   1                   1                   1
+AFFX-2315066                   0                   1                   1
+             YRI_NA19145_NSP.CEL YRI_NA19152_NSP.CEL YRI_NA19153_NSP.CEL
+AFFX-2315060                   2                   1                   2
+AFFX-2315061                   1                   1                   2
+AFFX-2315062                   1                   1                   0
+AFFX-2315057                   2                   0                   0
+AFFX-2315058                   2                   2                   2
+AFFX-2315059                   0                   0                   1
+AFFX-2315063                   1                   1                   1
+AFFX-2315064                   2                   0                   2
+AFFX-2315065                   2                   0                   0
+AFFX-2315066                   1                   0                   1
+             YRI_NA19154_NSP.CEL YRI_NA19159_NSP.CEL YRI_NA19160_NSP.CEL
+AFFX-2315060                   2                   1                   2
+AFFX-2315061                   2                   2                   1
+AFFX-2315062                   0                   1                   2
+AFFX-2315057                   0                   1                   0
+AFFX-2315058                   2                   1                   1
+AFFX-2315059                   0                   2                   2
+AFFX-2315063                   2                   0                   1
+AFFX-2315064                   1                   2                   2
+AFFX-2315065                   0                   1                   1
+AFFX-2315066                   0                   1                   0
+             YRI_NA19161_NSP.CEL YRI_NA19171_NSP.CEL YRI_NA19172_NSP.CEL
+AFFX-2315060                   2                   1                   1
+AFFX-2315061                   2                   2                   2
+AFFX-2315062                   2                   1                   1
+AFFX-2315057                   0                   1                   0
+AFFX-2315058                   0                   1                   2
+AFFX-2315059                   2                   1                   0
+AFFX-2315063                   1                   1                   1
+AFFX-2315064                   2                   0                   2
+AFFX-2315065                   1                   1                   1
+AFFX-2315066                   1                   1                   1
+             YRI_NA19173_NSP.CEL YRI_NA19192_NSP.CEL YRI_NA19193_NSP.CEL
+AFFX-2315060                   2                   1                   2
+AFFX-2315061                   2                   2                   1
+AFFX-2315062                   1                   0                   1
+AFFX-2315057                   0                   0                   1
+AFFX-2315058                   2                   2                   2
+AFFX-2315059                  -1                   0                   2
+AFFX-2315063                   0                   2                   1
+AFFX-2315064                   1                   1                   1
+AFFX-2315065                   0                   1                   1
+AFFX-2315066                   2                   1                   1
+             YRI_NA19194_NSP.CEL YRI_NA19200_NSP.CEL YRI_NA19201_NSP.CEL
+AFFX-2315060                   2                   1                   2
+AFFX-2315061                   2                   2                   1
+AFFX-2315062                   1                   1                   2
+AFFX-2315057                   1                   0                   0
+AFFX-2315058                   2                   2                   2
+AFFX-2315059                   1                   0                   1
+AFFX-2315063                   1                   1                   1
+AFFX-2315064                   1                   1                   1
+AFFX-2315065                   1                   0                   1
+AFFX-2315066                   0                   1                   0
+             YRI_NA19202_NSP.CEL YRI_NA19203_NSP.CEL YRI_NA19204_NSP.CEL
+AFFX-2315060                   1                   2                   1
+AFFX-2315061                   1                   1                   1
+AFFX-2315062                   2                   0                   2
+AFFX-2315057                   0                   0                   0
+AFFX-2315058                   2                   2                   2
+AFFX-2315059                   0                   0                   0
+AFFX-2315063                   2                   2                   1
+AFFX-2315064                   0                   0                   1
+AFFX-2315065                   1                   1                   2
+AFFX-2315066                   0                   0                   0
+             YRI_NA19205_NSP.CEL YRI_NA19206_NSP.CEL YRI_NA19207_NSP.CEL
+AFFX-2315060                   2                   2                   1
+AFFX-2315061                   1                   2                   1
+AFFX-2315062                   1                   0                   0
+AFFX-2315057                   0                   1                   0
+AFFX-2315058                   2                   2                   1
+AFFX-2315059                   0                   0                   0
+AFFX-2315063                   1                   0                   0
+AFFX-2315064                   0                   2                   0
+AFFX-2315065                   2                   0                   0
+AFFX-2315066                   0                   2                   0
+             YRI_NA19208_NSP.CEL YRI_NA19209_NSP.CEL YRI_NA19210_NSP.CEL
+AFFX-2315060                   1                   1                   2
+AFFX-2315061                   1                   2                   1
+AFFX-2315062                   0                   2                   1
+AFFX-2315057                   1                   0                   0
+AFFX-2315058                   1                   2                   0
+AFFX-2315059                   0                   2                   0
+AFFX-2315063                   0                   1                   1
+AFFX-2315064                   1                   1                   1
+AFFX-2315065                   0                   1                   0
+AFFX-2315066                   1                   0                   1
+             YRI_NA19211_NSP.CEL YRI_NA19221_NSP.CEL YRI_NA19222_NSP.CEL
+AFFX-2315060                   1                   2                   2
+AFFX-2315061                   1                   1                   1
+AFFX-2315062                   1                   0                   0
+AFFX-2315057                   0                   1                   1
+AFFX-2315058                   1                   2                   2
+AFFX-2315059                   1                   2                   2
+AFFX-2315063                   1                   1                   2
+AFFX-2315064                   2                   1                   0
+AFFX-2315065                   1                   1                   1
+AFFX-2315066                   1                   2                   1
+             YRI_NA19223_NSP.CEL YRI_NA19238_NSP.CEL YRI_NA19239_NSP.CEL
+AFFX-2315060                   1                   2                   0
+AFFX-2315061                   2                   2                   0
+AFFX-2315062                   1                   1                   1
+AFFX-2315057                   0                   2                   1
+AFFX-2315058                   2                   1                   2
+AFFX-2315059                   2                   1                   1
+AFFX-2315063                   0                   1                   1
+AFFX-2315064                   1                   2                   2
+AFFX-2315065                   1                   1                   0
+AFFX-2315066                   1                   0                   1
+             YRI_NA19240_NSP.CEL
+AFFX-2315060                   1
+AFFX-2315061                   1
+AFFX-2315062                   2
+AFFX-2315057                   1
+AFFX-2315058                   2
+AFFX-2315059                   0
+AFFX-2315063                   1
+AFFX-2315064                   2
+AFFX-2315065                   1
+AFFX-2315066                   1
+> dim (datos.con)
+[1] 262314    285
+> summary (datos.con[,1:10])
+   PP1046.CEL        PP1047.CEL        PP.715.CEL        PP.716.CEL     
+ Min.   :-1.0000   Min.   :-1.0000   Min.   :-1.0000   Min.   :-1.0000  
+ 1st Qu.:-1.0000   1st Qu.:-1.0000   1st Qu.: 0.0000   1st Qu.: 0.0000  
+ Median : 0.0000   Median : 0.0000   Median : 1.0000   Median : 1.0000  
+ Mean   : 0.3460   Mean   : 0.3653   Mean   : 0.7993   Mean   : 0.5552  
+ 3rd Qu.: 1.0000   3rd Qu.: 1.0000   3rd Qu.: 2.0000   3rd Qu.: 1.0000  
+ Max.   : 2.0000   Max.   : 2.0000   Max.   : 2.0000   Max.   : 2.0000  
+   PP.717.CEL        PP.718.CEL        PP.719.CEL       PP.720.CEL     
+ Min.   :-1.0000   Min.   :-1.0000   Min.   :-1.000   Min.   :-1.0000  
+ 1st Qu.: 0.0000   1st Qu.:-1.0000   1st Qu.: 0.000   1st Qu.: 0.0000  
+ Median : 1.0000   Median : 0.0000   Median : 0.000   Median : 1.0000  
+ Mean   : 0.8263   Mean   : 0.2828   Mean   : 0.591   Mean   : 0.7033  
+ 3rd Qu.: 2.0000   3rd Qu.: 1.0000   3rd Qu.: 2.000   3rd Qu.: 2.0000  
+ Max.   : 2.0000   Max.   : 2.0000   Max.   : 2.000   Max.   : 2.0000  
+   PP.721.CEL       PP.722.CEL    
+ Min.   :-1.000   Min.   :-1.000  
+ 1st Qu.: 0.000   1st Qu.: 0.000  
+ Median : 1.000   Median : 1.000  
+ Mean   : 0.866   Mean   : 0.929  
+ 3rd Qu.: 2.000   3rd Qu.: 2.000  
+ Max.   : 2.000   Max.   : 2.000  
+> 
+> system.time (conteos.con <- t (apply (datos.con, 2, table))) #25 segundos
+   user  system elapsed 
+ 24.850   0.580  25.493 
+> conteos.con[misarrays,]
+                -1     0     1     2
+PP1046.CEL   83076 59334 65984 53920
+PP1047.CEL   80324 63972 59885 58133
+PP.715.CEL   24087 91559 59589 87079
+PP.716.CEL   55164 69781 73940 63429
+PP.717.CEL   20307 92579 61798 87630
+PP.718.CEL   91249 54277 68133 48655
+PP.719.CEL   49111 83604 55056 74543
+PP.720.CEL   35698 89057 54931 82628
+PP.721.CEL   15516 95181 60568 91049
+PP.722.CEL    7842 95791 65847 92834
+PP.723.CEL   50921 73830 71929 65634
+PP.724.CEL    9830 95620 65037 91827
+PP.726.CEL   13927 93450 64991 89946
+PP907.CEL    66966 70776 58625 65947
+PP907DIC.CEL 82860 60735 65819 52900
+> 
+> malos.rate.con <- 100 * conteos.con[,1] / rowSums (conteos.con[,2:4])
+> 
+> cbind (conteos.con, malos.rate.con)[misarrays,]
+                -1     0     1     2 malos.rate.con
+PP1046.CEL   83076 59334 65984 53920      46.349546
+PP1047.CEL   80324 63972 59885 58133      44.136491
+PP.715.CEL   24087 91559 59589 87079      10.110945
+PP.716.CEL   55164 69781 73940 63429      26.629978
+PP.717.CEL   20307 92579 61798 87630       8.391080
+PP.718.CEL   91249 54277 68133 48655      53.341712
+PP.719.CEL   49111 83604 55056 74543      23.034854
+PP.720.CEL   35698 89057 54931 82628      15.752639
+PP.721.CEL   15516 95181 60568 91049       6.286923
+PP.722.CEL    7842 95791 65847 92834       3.081675
+PP.723.CEL   50921 73830 71929 65634      24.088309
+PP.724.CEL    9830 95620 65037 91827       3.893316
+PP.726.CEL   13927 93450 64991 89946       5.606976
+PP907.CEL    66966 70776 58625 65947      34.280361
+PP907DIC.CEL 82860 60735 65819 52900      46.173393
+> 
+> ################################################################################
+> 
+> cbind (malos.rate.sin, malos.rate.con[misarrays])
+             malos.rate.sin          
+PP1046.CEL        32.807129 46.349546
+PP1047.CEL        30.961867 44.136491
+PP.715.CEL         5.880643 10.110945
+PP.716.CEL        17.138455 26.629978
+PP.717.CEL         4.594245  8.391080
+PP.718.CEL        36.644649 53.341712
+PP.719.CEL        12.207412 23.034854
+PP.720.CEL         8.511694 15.752639
+PP.721.CEL         3.726932  6.286923
+PP.722.CEL         2.893656  3.081675
+PP.723.CEL        15.438339 24.088309
+PP.724.CEL         2.882760  3.893316
+PP.726.CEL         4.742510  5.606976
+PP907.CEL         21.750552 34.280361
+PP907DIC.CEL      33.177300 46.173393
+> 
+> mio <- colnames (datos.con) %in% misarrays
+> table (mio)
+mio
+FALSE  TRUE 
+  270    15 
+> 
+> summary (malos.rate.sin)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  2.883   4.668  12.210  15.560  26.360  36.640 
+> summary (malos.rate.con[mio])
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  3.082   7.339  23.030  23.410  39.210  53.340 
+> summary (malos.rate.con[!mio])
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.1596  0.3078  0.4221  0.5982  0.6962  2.7400 
+> 
+> 
+> plot (cbind (malos.rate.sin, malos.rate.con[misarrays]))
+> abline (0,1, col = "red")
+> 
+> boxplot (malos.rate.con ~ mio)
+> boxplot (malos.rate.con[!mio])
+> boxplot (malos.rate.con[mio])
+> 
+> ################################################################################
+> 
+> table (rownames (datos.sin) == rownames (datos.con[,misarrays]))
+
+  TRUE 
+262314 
+> table (colnames (datos.sin) == colnames (datos.con[,misarrays]))
+
+TRUE 
+  15 
+> 
+> 
+> iguales <- datos.sin == datos.con[,misarrays]
+> dim (iguales)
+[1] 262314     15
+> 
+> 100 * sum (iguales) / length (iguales) #80 % coincidencias
+[1] 80.77846
+> 
+> conteos.iguales <- apply (iguales, 2, sum)
+> conteos.iguales.pct <- 100 * conteos.iguales / nrow (datos.sin)
+> 
+> cbind (conteos.iguales, conteos.iguales.pct)
+             conteos.iguales conteos.iguales.pct
+PP1046.CEL            184591            70.37024
+PP1047.CEL            191115            72.85734
+PP.715.CEL            230117            87.72578
+PP.716.CEL            189705            72.31982
+PP.717.CEL            234738            89.48741
+PP.718.CEL            168527            64.24628
+PP.719.CEL            206420            78.69195
+PP.720.CEL            218261            83.20601
+PP.721.CEL            240055            91.51437
+PP.722.CEL            247691            94.42538
+PP.723.CEL            194055            73.97813
+PP.724.CEL            246345            93.91226
+PP.726.CEL            238804            91.03746
+PP907.CEL             202985            77.38245
+PP907DIC.CEL          184989            70.52197
+> 
+> cbind (malos.rate.sin, malos.rate.con[misarrays], conteos.iguales.pct)
+             malos.rate.sin           conteos.iguales.pct
+PP1046.CEL        32.807129 46.349546            70.37024
+PP1047.CEL        30.961867 44.136491            72.85734
+PP.715.CEL         5.880643 10.110945            87.72578
+PP.716.CEL        17.138455 26.629978            72.31982
+PP.717.CEL         4.594245  8.391080            89.48741
+PP.718.CEL        36.644649 53.341712            64.24628
+PP.719.CEL        12.207412 23.034854            78.69195
+PP.720.CEL         8.511694 15.752639            83.20601
+PP.721.CEL         3.726932  6.286923            91.51437
+PP.722.CEL         2.893656  3.081675            94.42538
+PP.723.CEL        15.438339 24.088309            73.97813
+PP.724.CEL         2.882760  3.893316            93.91226
+PP.726.CEL         4.742510  5.606976            91.03746
+PP907.CEL         21.750552 34.280361            77.38245
+PP907DIC.CEL      33.177300 46.173393            70.52197
+> 
+> plot (malos.rate.sin/malos.rate.con[misarrays], conteos.iguales.pct) #parece aleatorio
+> 
+> plot (malos.rate.sin, malos.rate.sin/malos.rate.con[misarrays])
+> 
+> ###
+> 
+> dim (iguales)
+[1] 262314     15
+> dim (datos.sin)
+[1] 262314     15
+> 
+> ##OBS: de los calls que coinciden entre las dos normalizaciones casi todos son no missing calls
+> 100 * table (datos.sin[iguales])  / sum (iguales)
+
+       -1         0         1         2 
+ 8.090868 36.071096 22.446685 33.391350 
+> 100 * table (datos.sin[!iguales]) / sum (!iguales)
+
+      -1        0        1        2 
+31.32371 28.07519 15.26235 25.33875 
+> 
+> 
+> ###Analizamos calidad de los SNP en general: esto es por filas
+> dim (iguales)
+[1] 262314     15
+> iguales[1:3,]
+             PP1046.CEL PP1047.CEL PP.715.CEL PP.716.CEL PP.717.CEL PP.718.CEL
+AFFX-2315060       TRUE       TRUE       TRUE       TRUE       TRUE       TRUE
+AFFX-2315061       TRUE       TRUE       TRUE       TRUE       TRUE       TRUE
+AFFX-2315062      FALSE       TRUE       TRUE       TRUE       TRUE       TRUE
+             PP.719.CEL PP.720.CEL PP.721.CEL PP.722.CEL PP.723.CEL PP.724.CEL
+AFFX-2315060       TRUE       TRUE       TRUE       TRUE      FALSE       TRUE
+AFFX-2315061       TRUE       TRUE       TRUE       TRUE       TRUE       TRUE
+AFFX-2315062       TRUE       TRUE       TRUE       TRUE       TRUE       TRUE
+             PP.726.CEL PP907.CEL PP907DIC.CEL
+AFFX-2315060       TRUE      TRUE         TRUE
+AFFX-2315061       TRUE      TRUE         TRUE
+AFFX-2315062       TRUE      TRUE         TRUE
+> 
+> ig.r <- apply (iguales, 1, all)
+> table (ig.r, exclude = NULL)
+ig.r
+ FALSE   TRUE   <NA> 
+229884  32430      0 
+> 
+> 100 * sum (ig.r) / length (ig.r) ##solo un 12% coinciden exactamente
+[1] 12.36305
+> 
+> ig.s <- apply (iguales, 1, sum)
+> table (ig.s, exclude = NULL)
+ig.s
+    0     1     2     3     4     5     6     7     8     9    10    11    12 
+   14    53   144   371   777  1451  2656  4816  8286 14201 22269 32799 43047 
+   13    14    15  <NA> 
+49657 49343 32430     0 
+> 
+> 100 * table (ig.s > 5) / length (ig.s)
+
+    FALSE      TRUE 
+ 1.071235 98.928765 
+> 100 * table (ig.s > 10) / length (ig.s) #79% no esta del todo mal
+
+   FALSE     TRUE 
+20.98172 79.01828 
+> 
+> 
+> ###filas con missing CALL
+> con.call <- datos.sin != -1 
+> dim (con.call)
+[1] 262314     15
+> 
+> 100 * table (con.call) / length (con.call)
+con.call
+   FALSE     TRUE 
+12.55658 87.44342 
+> 
+> 100 * table (apply (con.call, 1, all), exclude = NULL) / nrow (con.call) ##21% de snps con call para todos los arrays
+
+   FALSE     TRUE     <NA> 
+78.95118 21.04882  0.00000 
+> 
+> con.call[1:3,]
+             PP1046.CEL PP1047.CEL PP.715.CEL PP.716.CEL PP.717.CEL PP.718.CEL
+AFFX-2315060      FALSE       TRUE       TRUE       TRUE       TRUE       TRUE
+AFFX-2315061       TRUE       TRUE       TRUE       TRUE       TRUE       TRUE
+AFFX-2315062       TRUE       TRUE       TRUE       TRUE       TRUE       TRUE
+             PP.719.CEL PP.720.CEL PP.721.CEL PP.722.CEL PP.723.CEL PP.724.CEL
+AFFX-2315060       TRUE       TRUE       TRUE       TRUE      FALSE       TRUE
+AFFX-2315061       TRUE       TRUE       TRUE       TRUE       TRUE       TRUE
+AFFX-2315062       TRUE       TRUE       TRUE       TRUE       TRUE       TRUE
+             PP.726.CEL PP907.CEL PP907DIC.CEL
+AFFX-2315060       TRUE      TRUE         TRUE
+AFFX-2315061       TRUE      TRUE         TRUE
+AFFX-2315062       TRUE      TRUE         TRUE
+> 
+> cc.s <- apply (con.call, 1, sum)
+> table (cc.s, exclude = NULL)
+cc.s
+    0     2     3     4     5     6     7     8     9    10    11    12    13 
+    2     3     8    15    40   127   389  1222  3898 10837 24197 41586 56631 
+   14    15  <NA> 
+68145 55214     0 
+> 
+> 100 * table (cc.s > 5) / length (cc.s)
+
+      FALSE        TRUE 
+ 0.02592313 99.97407687 
+> 100 * table (cc.s > 10) / length (cc.s)
+
+    FALSE      TRUE 
+ 6.305801 93.694199 
+> 
+> 
+> table (con.call=cc.s > 10, iguales=ig.s > 10)
+        iguales
+con.call  FALSE   TRUE
+   FALSE   7908   8633
+   TRUE   47130 198643
+> 100 * table (con.call=cc.s > 10, iguales=ig.s > 10) / length (cc.s) ##DEBERIA DE USAR ESTE
+        iguales
+con.call     FALSE      TRUE
+   FALSE  3.014708  3.291094
+   TRUE  17.967017 75.727182
+> 
+> 100 * table (con.call=cc.s > 11, iguales=ig.s > 10) / length (cc.s)
+        iguales
+con.call     FALSE      TRUE
+   FALSE  6.072112  9.458130
+   TRUE  14.909612 69.560145
+> 
+> ################################################################################
+> 
+> 
+> ###REPORT
+> snp.qc <- cbind (con.call = cc.s, como.hap.map = ig.s)
+> snp.qc[1:100,]
+              con.call como.hap.map
+AFFX-2315060        13           14
+AFFX-2315061        15           15
+AFFX-2315062        15           14
+AFFX-2315057        15           15
+AFFX-2315058        15           15
+AFFX-2315059        11           13
+AFFX-2315063        15           15
+AFFX-2315064        15           14
+AFFX-2315065        14           12
+AFFX-2315066        14           15
+AFFX-2315067        13           14
+AFFX-2315068        15           14
+AFFX-2315069        11           11
+AFFX-2315070        15           13
+AFFX-2315071        15           14
+AFFX-2315072        15           14
+AFFX-2315073        15           14
+AFFX-2315074        13           11
+AFFX-2315075        12           13
+AFFX-2315076        15           13
+AFFX-2315077        14           13
+AFFX-2315078        15           13
+AFFX-2315079        15           14
+AFFX-2315080        13           11
+AFFX-2315081        13           14
+AFFX-2315082        15           14
+AFFX-2315083        12           14
+AFFX-2315084        15           15
+AFFX-2315085        11           14
+AFFX-2315086        14           14
+AFFX-2315087        14           14
+AFFX-2315088        15           15
+AFFX-2315089        15           15
+AFFX-2315090        13           12
+AFFX-2315091        12           11
+AFFX-2315092        12           12
+AFFX-2315093        15           14
+AFFX-2315094        13           13
+AFFX-2315095        15           15
+AFFX-2315096        15           14
+AFFX-2315047        15           15
+AFFX-2315048        12           14
+AFFX-2315049        15           12
+AFFX-2315050        14           14
+AFFX-2315051        12           12
+AFFX-2315052        12           13
+AFFX-2315053        12           15
+AFFX-2315054        14           13
+AFFX-2315055        15           15
+AFFX-2315056        14           14
+SNP_A-1780520       15           13
+SNP_A-1780618       13           14
+SNP_A-1780632       13           14
+SNP_A-1780654       14           13
+SNP_A-4192495       13           15
+SNP_A-4192498       14           13
+SNP_A-1780732       14           15
+SNP_A-1780848       15           15
+SNP_A-1780985       13           13
+SNP_A-1781022       14           11
+SNP_A-1781076       12           15
+SNP_A-1781249       10           11
+SNP_A-1781276       15           10
+SNP_A-1781302       13           12
+SNP_A-1781510       14           13
+SNP_A-4192564       13           11
+SNP_A-1781614       13           12
+SNP_A-1781633       14           13
+SNP_A-1781764       14           13
+SNP_A-1781829       15           13
+SNP_A-1781832       15           15
+SNP_A-1781982       15           15
+SNP_A-1782155       14           10
+SNP_A-1782305       12           13
+SNP_A-1782891       14           11
+SNP_A-1782949       15           15
+SNP_A-4192675       10           12
+SNP_A-1783398       11           10
+SNP_A-1783496       15           15
+SNP_A-1784032       15           14
+SNP_A-1784070       12           12
+SNP_A-1784149       14           14
+SNP_A-1784362       11           12
+SNP_A-1784506       14           12
+SNP_A-1784513       11           11
+SNP_A-1784836       15           15
+SNP_A-1784941       13           14
+SNP_A-1785311       15            7
+SNP_A-1785727       12           10
+SNP_A-1785929       13           14
+SNP_A-1785957       15           12
+SNP_A-4192909       15           13
+SNP_A-4192918       15           12
+SNP_A-4192927       14           14
+SNP_A-1786538       15            8
+SNP_A-1786543       11           14
+SNP_A-4192955        8            9
+SNP_A-4192985       11           11
+SNP_A-4192992       12           12
+SNP_A-1787270       13           10
+> 
+> array.qc <- cbind (na.rate = malos.rate.sin,
++                    na.rate.hapmap = malos.rate.con[misarrays],
++                    same.when.hapmap = conteos.iguales.pct)
+> array.qc
+               na.rate na.rate.hapmap same.when.hapmap
+PP1046.CEL   32.807129      46.349546         70.37024
+PP1047.CEL   30.961867      44.136491         72.85734
+PP.715.CEL    5.880643      10.110945         87.72578
+PP.716.CEL   17.138455      26.629978         72.31982
+PP.717.CEL    4.594245       8.391080         89.48741
+PP.718.CEL   36.644649      53.341712         64.24628
+PP.719.CEL   12.207412      23.034854         78.69195
+PP.720.CEL    8.511694      15.752639         83.20601
+PP.721.CEL    3.726932       6.286923         91.51437
+PP.722.CEL    2.893656       3.081675         94.42538
+PP.723.CEL   15.438339      24.088309         73.97813
+PP.724.CEL    2.882760       3.893316         93.91226
+PP.726.CEL    4.742510       5.606976         91.03746
+PP907.CEL    21.750552      34.280361         77.38245
+PP907DIC.CEL 33.177300      46.173393         70.52197
+> 
+> 
+> ###SALVAMOS
+> save (list = c("snp.qc", "array.qc"), file = file.path (.job$datadir, "data_processed", "quality_control.RData"))
+> 
+> array.qc <- cbind (array = rownames (array.qc), array.qc)
+> write.table (array.qc, file = file.path (.job$datadir, "data_results", "from_script_results", "array_qc.xls"), 
++              append = FALSE, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
+> 
+> 
+> ###EXIT
+> dev.off ()
+null device 
+          1 
+> warnings ()
+NULL
+> sessionInfo ()
+R version 2.12.1 (2010-12-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=C              LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+> q ("no")
+> proc.time()
+   user  system elapsed 
+ 67.910   1.230  69.337 

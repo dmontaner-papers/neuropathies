@@ -1,0 +1,120 @@
+##comandos_apt.txt
+##2001-03-10 dmontaner@cipf.es
+##Comandos para rehacer el analisis de los datos de Carmen Espinos - Eduardo Calpena.
+##Solo para la familia ??? y para los arrays Nsp.
+
+################################################################################
+###           Affymetrix Power Tools (APT) -- Release apt-1.12.0             ###
+################################################################################
+
+
+### apt-geno-qc is a program for making statistical assessements of experimental qualities from Affymetrix SNP microarrays using the model based algorithm DM.
+## --chrX-probes: parece que no se puede aplicar. ¿Sera porque no esta el fichero Y para este chip?
+## -o y --out-dir: no funcionan
+## 1 minuto 30 en mi portatil
+## NO ME FIO DE COMO FUNCIONA: no acierta nisiquiera el sexo de los arrays
+
+apt-geno-qc \
+  --cdf-file  /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.cdf \
+  --qca-file  /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.qca \
+  --qcc-file  /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.qcc \
+  --out-file  /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt/geno-qc/apt-geno-qc.results.txt \
+  --log-file  /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt/geno-qc/apt-geno-qc.log \
+  --cel-files /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt/miscels.txt
+
+################################################################################
+################################################################################
+
+
+
+### apt-probeset-genotype is a program for making genotype calls from Affymetrix SNP microarrays.
+## A chrX (500K, GenomeWide SNP 5.0) file consisting of the SNP IDs for all non-pseudo-autosomal chrX SNPs on the array.
+## An autosome is a chromosome that is not a sex chromosome; that is to say, there is an equal number of copies of the chromosome in males and females.
+## For Mapping 500K chips apt-probeset-genotype runs 100 CELs in 1-2 hours on a 3GHz 2Mb RAM machine using local disk.
+## 3 minutos 30 en mi portatil
+
+
+###FOMATO MATRIZ
+apt-probeset-genotype \
+  -c          /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.cdf \
+  --chrX-snps /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.chrx \
+  -o          /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt/probeset-genotype \
+  --cel-files /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt/miscels.txt
+
+###FOMATO MATRIZ con anotacion: Parece que no hace nada la anotacion
+# apt-probeset-genotype \
+#   -c                /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.cdf \
+#   --chrX-snps       /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.chrx \
+#   -o                /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt/probeset-genotype \
+#   --annotation-file /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/Mapping250K_Nsp.na31.annot.csv/Mapping250K_Nsp.na31.annot.csv \
+#   --cel-files       /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt/miscels.txt
+
+
+###FORMATO CHP NUEVO
+## habria que ponerle la opcion --no-table-output para que no genere lo mismo que en el comando anterior
+apt-probeset-genotype \
+  -c          /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.cdf \
+  --chrX-snps /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.chrx \
+  -o          /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt/probeset-genotype-chp \
+  --cc-chp-output \
+  --cel-files /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt/miscels.txt
+
+
+###FORMATO CHP NUEVO con anotacion
+# apt-probeset-genotype \
+#   -c                /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.cdf \
+#   --chrX-snps       /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.chrx \
+#   -o                /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt/probeset-genotype-chp \
+#   --annotation-file /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/Mapping250K_Nsp.na31.annot.csv/Mapping250K_Nsp.na31.annot.csv \
+#   --cc-chp-output \
+#   --cel-files       /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt/miscels.txt
+
+################################################################################
+################################################################################
+
+
+
+### apt-chp-to-txt: A program to dump AGCC and XDA chp files as text.
+     
+apt-chp-to-txt \
+  --o data_processed/apt/chp-to-txt \
+  --chp-files /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt/mis_chp_files.txt
+
+
+
+
+################################################################################
+###              Analisis conjunto con los datos de HapMap                   ###
+################################################################################
+
+apt-geno-qc \
+  --cdf-file  /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.cdf \
+  --qca-file  /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.qca \
+  --qcc-file  /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.qcc \
+  --out-file  /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt_hapmap/geno-qc/apt-geno-qc.results.txt \
+  --log-file  /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt_hapmap/geno-qc/apt-geno-qc.log \
+  --cel-files /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt_hapmap/miscels.txt
+
+################################################################################
+
+###NO LO CORREMOS: no hace falta si no ponemos la opcion --no-table-output en el comando siguiente
+# apt-probeset-genotype \
+#   -c          /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.cdf \
+#   --chrX-snps /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.chrx \
+#   -o          /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt_hapmap/probeset-genotype \
+#   --cel-files /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt_hapmap/miscels.txt
+
+################################################################################
+
+apt-probeset-genotype \
+  -c          /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.cdf \
+  --chrX-snps /home/dmontaner/datos/2011/eduardo_calpena/data_raw/annotation/CD_Mapping250K_Nsp_rev4/Full/Mapping250K_Nsp/LibFiles/Mapping250K_Nsp.chrx \
+  -o          /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt_hapmap/probeset-genotype-chp \
+  --cc-chp-output \
+  --cel-files /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt_hapmap/miscels.txt
+
+################################################################################
+     
+apt-chp-to-txt \
+  --o data_processed/apt_hapmap/chp-to-txt \
+  --chp-files /home/dmontaner/datos/2011/eduardo_calpena/data_processed/apt_hapmap/mis_chp_files.txt

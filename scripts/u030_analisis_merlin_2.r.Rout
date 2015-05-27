@@ -1,0 +1,427 @@
+
+R version 2.12.1 (2010-12-16)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##u030_analisis_merlin_2.r
+> ##2011-03-13 dmontaner@cipf.es
+> ##analisis de datos para Carmen Espinos y Eduardo Calpena.
+> ##Formateamos los datos y hacemos el analisis con Merlin cromosoma a coromosoma
+> 
+> ##TRABAJAMOS CON LOS DOS afectados MISSING COMO ENFERMOS
+> 
+> date ()
+[1] "Mon Mar 14 10:25:27 2011"
+> Sys.info ()[c("nodename", "user")]
+     nodename          user 
+"davidlaptop"   "dmontaner" 
+> commandArgs ()
+[1] "/usr/lib64/R/bin/exec/R"  "-f"                      
+[3] "u030_analisis_merlin_2.r" "--restore"               
+[5] "--save"                   "--no-readline"           
+[7] "--no-save"                "--no-restore"            
+> rm (list = ls ())
+> R.version.string #"R version 2.12.1 (2010-12-16)"
+[1] "R version 2.12.1 (2010-12-16)"
+> #library (kinship); packageDescription ("kinship", fields = "Version") #"1.1.0-23"
+> 
+> try (source (".job.r")); try (.job)
+
+.job.r has been sourced
+
+$owner
+[1] "eduardo_calpena"
+
+$datadir
+[1] "~/datos/2011/eduardo_calpena"
+
+$docsdir
+[1] "~/trabajos/2011/eduardo_calpena"
+
+$scriptdir
+[1] "~/trabajos/2011/eduardo_calpena/scripts"
+
+$sinfodir
+[1] "~/trabajos/2011/eduardo_calpena/sampleinfo"
+
+$plotsdir
+[1] "~/datos/2011/eduardo_calpena/data_results/from_script_plots"
+
+$testmode
+[1] FALSE
+
+$dec
+[1] "."
+
+> 
+> ###PARAMETROS
+> NMM <- 2500  #numero MAXIMO de marcadores para incluir en el Merlin
+> 
+> ###DATOS
+> load (file = file.path (.job$datadir, "data_processed", "datos_por_cromosoma.RData"))
+> ls ()
+[1] "cromosomas" "lanot"      "latos"      "NMM"        "ped"       
+> 
+> ##cambio missing por nada
+> #setwd (file.path (.job$datadir, "data_processed", "merlin_0"))
+> ##cambio missing por sanos
+> #setwd (file.path (.job$datadir, "data_processed", "merlin_1")); ped[ped$afec == 0, "afec"] <- 1
+> ##cambio missing por enfermos
+> setwd (file.path (.job$datadir, "data_processed", "merlin_2")); ped[ped$afec == 0, "afec"] <- 2 
+> 
+> ped
+       fam   id padre madre sexo afec sinarray        cel
+id300  266  300     0     0    1    1        1       <NA>
+id400  266  400     0     0    2    2        1       <NA>
+id1046 266 1046     0     0    2    1        0 PP1046.CEL
+id921  266  921     0     0    1    1        1       <NA>
+id923  266  923     0     0    1    1        1       <NA>
+id907  266  907     0     0    1    1        0  PP907.CEL
+id715  266  715   921   721    1    2        0 PP 715.CEL
+id716  266  716   921   721    2    2        0 PP 716.CEL
+id717  266  717   921   721    1    1        0 PP 717.CEL
+id718  266  718   300   400    1    2        0 PP 718.CEL
+id719  266  719   300   400    1    1        0 PP 719.CEL
+id720  266  720   300   400    2    2        0 PP 720.CEL
+id721  266  721   300   400    2    2        0 PP 721.CEL
+id722  266  722   923   723    1    2        0 PP 722.CEL
+id723  266  723   300   400    2    2        0 PP 723.CEL
+id724  266  724   907   720    1    2        0 PP 724.CEL
+id726  266  726   718  1046    1    2        0 PP 726.CEL
+id1047 266 1047   718  1046    1    1        0 PP1047.CEL
+> 
+> ped.t <- t (ped[,1:6])
+> ped.t
+      id300 id400 id1046 id921 id923 id907 id715 id716 id717 id718 id719 id720
+fam     266   266    266   266   266   266   266   266   266   266   266   266
+id      300   400   1046   921   923   907   715   716   717   718   719   720
+padre     0     0      0     0     0     0   921   921   921   300   300   300
+madre     0     0      0     0     0     0   721   721   721   400   400   400
+sexo      1     2      2     1     1     1     1     2     1     1     1     2
+afec      1     2      1     1     1     1     2     2     1     2     1     2
+      id721 id722 id723 id724 id726 id1047
+fam     266   266   266   266   266    266
+id      721   722   723   724   726   1047
+padre   300   923   300   907   718    718
+madre   400   723   400   720  1046   1046
+sexo      2     1     2     1     1      1
+afec      2     2     2     2     2      1
+> ################################################################################
+> 
+> 
+> ### preparamos los datos para Merlin
+> 
+> dir ()
+[1] "modelo.txt"
+> 
+> for (cro in cromosomas) {
++   cat ("\n")
++   print (cro)
++ 
++   ## DIRECTORIO
++   dir.create (cro)
++   file.copy ("modelo.txt", to = file.path (cro, "modelo.txt"))
++   
++   ## RECORTE
++   N <- nrow (latos[[cro]])
++   print (N)
++   if (N < NMM){
++     indices <- 1:N
++   } else {
++     indices <- round (seq (from = 1, to = N, length.out = NMM))
++   }
++   
++   ## ### PED ###
++   chr.ped <- t(rbind (ped.t, latos[[cro]][indices,]))
++   write.table (chr.ped, file = file.path (cro, "datos.ped"),
++                append = FALSE, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
++   
++   ## ### MAP ###
++   write.table (lanot[[cro]][indices, c("Chromosome", "dbSNP.RS.ID", "deCODE.genetic.map")],
++                file = file.path (cro, "datos.map"),
++                append = FALSE, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
++   
++   ## ### DAT ###
++   dat <- rbind (c("A", "disease"),                                  ##   A - affection status
++                 cbind ("M", lanot[[cro]][indices, "dbSNP.RS.ID"]))  ##   M - marker
++   write.table (dat, file.path (cro, "datos.dat"),
++                append = FALSE, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
++   
++ }
+
+[1] "1"
+[1] 11708
+
+[1] "10"
+[1] 8481
+
+[1] "11"
+[1] 7720
+
+[1] "12"
+[1] 7572
+
+[1] "13"
+[1] 6553
+
+[1] "14"
+[1] 4834
+
+[1] "15"
+[1] 4062
+
+[1] "16"
+[1] 4334
+
+[1] "17"
+[1] 2902
+
+[1] "18"
+[1] 4807
+
+[1] "19"
+[1] 1599
+
+[1] "2"
+[1] 13160
+
+[1] "20"
+[1] 3481
+
+[1] "21"
+[1] 2259
+
+[1] "22"
+[1] 1503
+
+[1] "3"
+[1] 10927
+
+[1] "4"
+[1] 11336
+
+[1] "5"
+[1] 10057
+
+[1] "6"
+[1] 10137
+
+[1] "7"
+[1] 8018
+
+[1] "8"
+[1] 8934
+
+[1] "9"
+[1] 7183
+
+[1] "X"
+[1] 2379
+> ################################################################################
+> 
+> 
+> rm (list = setdiff (ls (), "cromosomas"))
+> ls ()
+[1] "cromosomas"
+> gc ()
+          used (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells  142579  7.7    2185790 116.8  1849524  98.8
+Vcells 1112441  8.5   26529008 202.5 33136307 252.9
+> gc ()
+          used (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells  142546  7.7    1748632  93.4  1849524  98.8
+Vcells 1112402  8.5   21223206 162.0 33136307 252.9
+> 
+> ### Merlin
+> for (cro in cromosomas) {
++   cat ("\n")
++   print (cro)
++   
++   setwd (cro)
++ 
++   print  ("pedstats")
++   system ("pedstats -d datos.dat -p datos.ped                                            > salida_pedstats.txt")
++   print  ("merlin --error")
++   system ("merlin   -d datos.dat -p datos.ped -m datos.map --error                       > salida_merlin_error.txt")
++   print  ("pedwipe")
++   system ("pedwipe  -d datos.dat -p datos.ped                                            > salida_pedwipe.txt")
++   print  ("merlin")
++   system ("merlin   -d wiped.dat -p wiped.ped -m datos.map --model modelo.txt --tabulate > salida_merlin.txt")
++ 
++   setwd ("..")
++ }  
+
+[1] "1"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "10"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "11"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "12"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "13"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "14"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "15"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "16"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "17"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "18"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "19"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "2"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "20"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "21"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "22"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "3"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "4"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "5"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "6"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "7"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "8"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "9"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+
+[1] "X"
+[1] "pedstats"
+[1] "merlin --error"
+[1] "pedwipe"
+[1] "merlin"
+> 
+> ###EXIT
+> warnings ()
+NULL
+> sessionInfo ()
+R version 2.12.1 (2010-12-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=C              LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+> q ("no")
+> proc.time()
+    user   system  elapsed 
+5473.690   72.720 5562.845 

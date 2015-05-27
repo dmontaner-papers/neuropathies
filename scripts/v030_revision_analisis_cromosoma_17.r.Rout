@@ -1,0 +1,532 @@
+
+R version 2.13.1 (2011-07-08)
+Copyright (C) 2011 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##v030_revision_analisis_cromosoma_17.r
+> ##2011-03-14 dmontaner@cipf.es
+> ##2011-05-03 dmontaner@cipf.es
+> ##analisis de datos para Carmen Espinos y Eduardo Calpena.
+> ##Hacemos reports de las regiones significativas del Merlin
+> 
+> ###SNPs con posiciones duplicadas en la nueva version de dbSNP "rs2610383"  "rs4055285"  "rs41348644"
+> 
+> ###SNP que parece qeu se ha movido al cromosoma 10 "rs41480146"
+> ## HuRef	36.3	10	83363119	NW_001838005.2	10756703	+	A	-	view	blast
+> 
+> date ()
+[1] "Fri Feb 17 19:35:38 2012"
+> Sys.info ()[c("nodename", "user")]
+     nodename          user 
+"davidlaptop"   "dmontaner" 
+> commandArgs ()
+[1] "/usr/local/lib64/R/bin/exec/R"        
+[2] "-f"                                   
+[3] "v030_revision_analisis_cromosoma_17.r"
+[4] "--restore"                            
+[5] "--save"                               
+[6] "--no-readline"                        
+[7] "--no-save"                            
+[8] "--no-restore"                         
+> rm (list = ls ())
+> R.version.string #"R version 2.12.1 (2010-12-16)"
+[1] "R version 2.13.1 (2011-07-08)"
+> #library (kinship); packageDescription ("kinship", fields = "Version") #"1.1.0-23"
+> 
+> try (source (".job.r")); try (.job)
+
+.job.r has been sourced
+
+$owner
+[1] "eduardo_calpena"
+
+$datadir
+[1] "~/datos/2011/eduardo_calpena"
+
+$docsdir
+[1] "~/trabajos/2011/eduardo_calpena"
+
+$scriptdir
+[1] "~/trabajos/2011/eduardo_calpena/scripts"
+
+$sinfodir
+[1] "~/trabajos/2011/eduardo_calpena/sampleinfo"
+
+$plotsdir
+[1] "~/datos/2011/eduardo_calpena/data_results/from_script_plots"
+
+$testmode
+[1] FALSE
+
+$dec
+[1] "."
+
+> 
+> ###CALLS
+> load (file = file.path (.job$datadir, "data_processed", "datos_filtrados.RData"))
+> calls <- datos
+> rm (datos)
+> calls <- sub ("\t", "/", calls)
+> calls <- as.data.frame (calls, stringsAsFactors = FALSE)
+> dim (calls)
+[1] 198323     14
+> calls[1:3,]
+           id1046 id1047 id715 id716 id717 id718 id719 id720 id721 id722 id723
+rs17106009    0/0    G/G   G/G   G/G   G/G   0/0   G/G   G/G   G/G   G/G   G/G
+rs233978      0/0    A/G   G/G   A/G   A/G   0/0   A/G   A/G   A/G   G/G   A/G
+rs251292      0/0    T/T   A/A   A/A   A/A   A/T   A/T   A/A   A/A   A/T   A/T
+           id724 id726 id907
+rs17106009   G/G   G/G   G/G
+rs233978     G/G   A/G   G/G
+rs251292     A/T   T/T   A/T
+> 
+> 
+> 
+> ###ANOTACION
+> load (file = file.path (.job$datadir, "data_processed", "anotacion.RData"))
+> touse <- annot$Chromosome == "17"
+> table (touse)
+touse
+ FALSE   TRUE 
+257420   4844 
+> annot <- annot[touse,]
+> 
+> table (duplicated (annot[,"Probe.Set.ID"]))
+
+FALSE 
+ 4844 
+> table (duplicated (annot[,"dbSNP.RS.ID"]))
+
+FALSE 
+ 4844 
+> 
+> annot[,"Physical.Position"] <- as.numeric (annot[,"Physical.Position"])
+> orden <- order (annot[,"Physical.Position"])
+> annot <- annot[orden,]
+> 
+> annot[1:3,]
+               Probe.Set.ID dbSNP.RS.ID Chromosome Physical.Position Strand
+SNP_A-1837999 SNP_A-1837999   rs8064924         17             18901      -
+SNP_A-4218752 SNP_A-4218752   rs4890173         17             46286      +
+SNP_A-2080415 SNP_A-2080415   rs4890197         17             83173      +
+              ChrX.pseudo.autosomal.region.1 Cytoband
+SNP_A-1837999                              0    p13.3
+SNP_A-4218752                              0    p13.3
+SNP_A-2080415                              0    p13.3
+                                              Flank Allele.A Allele.B
+SNP_A-1837999 tagaaagctcctcttc[C/T]gaacacttcaccagca        C        T
+SNP_A-4218752 aaggtattaaatatgc[C/G]accacattcactcctc        C        G
+SNP_A-2080415 acctagagaggaaaaa[G/T]gacttccaacgccaag        G        T
+                                                                                                                                                                                                                                                                                                                                                                                                  Associated.Gene
+SNP_A-1837999 ENST00000400876 // --- // 0 // Hs.551705 // DOC2B // 8447 // double C2-like domains, beta /// ENST00000496357 // --- // 0 // Hs.551705 // DOC2B // 8447 // double C2-like domains, beta /// ENST00000343572 // --- // 0 // Hs.551705 // DOC2B // 8447 // double C2-like domains, beta /// NM_006987 // downstream // 43395 // Hs.651925 // RPH3AL // 9501 // rabphilin 3A-like (without C2 domains)
+SNP_A-4218752                                                                ENST00000496357 // upstream // 14859 // Hs.551705 // DOC2B // 8447 // double C2-like domains, beta /// ENST00000323434 // downstream // 16010 // Hs.651925 // RPH3AL // 9501 // rabphilin 3A-like (without C2 domains) /// NM_006987 // downstream // 16010 // Hs.651925 // RPH3AL // 9501 // rabphilin 3A-like (without C2 domains)
+SNP_A-2080415                                                                                                                                                                                          ENST00000323434 // --- // 0 // Hs.651925 // RPH3AL // 9501 // rabphilin 3A-like (without C2 domains) /// NM_006987 // intron // 0 // Hs.651925 // RPH3AL // 9501 // rabphilin 3A-like (without C2 domains)
+                                                                                                                                                                         Genetic.Map
+SNP_A-1837999 0.0288768892409262 // --- // UT269 // --- // --- /// 0.0188930425621041 // --- // D17S926 // --- // AFM207XA11 /// 0.0644071245411838 // --- // D17S1528 // --- // ---
+SNP_A-4218752  0.0707178210855169 // --- // UT269 // --- // --- /// 0.0462679616395232 // --- // D17S926 // --- // AFM207XA11 /// 0.157729299438555 // --- // D17S1528 // --- // ---
+SNP_A-2080415   0.127076647192927 // --- // UT269 // --- // --- /// 0.0831413828558372 // --- // D17S926 // --- // AFM207XA11 /// 0.283432241393616 // --- // D17S1528 // --- // ---
+                                                                 Microsatellite
+SNP_A-1837999  D17S1866 // upstream // 63612 /// D17S2199 // downstream // 9912
+SNP_A-4218752 D17S1866 // upstream // 36227 /// D17S2199 // downstream // 37297
+SNP_A-2080415    D1S2511 // upstream // 331627 /// D17S643 // downstream // 658
+              Fragment.Enzyme.Type.Length.Start.Stop
+SNP_A-1837999   NspI // --- // 821 // 18603 // 19423
+SNP_A-4218752   NspI // --- // 851 // 46253 // 47103
+SNP_A-2080415   NspI // --- // 527 // 82917 // 83443
+                                                                                                                                        Allele.Frequencies
+SNP_A-1837999 0.142857 // 0.857143 // CEPH /// 0.238636 // 0.761364 // Han Chinese /// 0.044444 // 0.955556 // Japanese /// 0.387755 // 0.612245 // Yoruba
+SNP_A-4218752         0.393617 // 0.606383 // CEPH /// 0.244444 // 0.755556 // Han Chinese /// 0.066667 // 0.933333 // Japanese /// 0.86 // 0.14 // Yoruba
+SNP_A-2080415                 0.88 // 0.12 // CEPH /// 0.766667 // 0.233333 // Han Chinese /// 0.933333 // 0.066667 // Japanese /// 0.65 // 0.35 // Yoruba
+                                                                           Heterozygous.Allele.Frequencies
+SNP_A-1837999 0.244898 // CEPH /// 0.363378 // Han Chinese /// 0.084938 // Japanese /// 0.474802 // Yoruba
+SNP_A-4218752   0.477365 // CEPH /// 0.369383 // Han Chinese /// 0.124444 // Japanese /// 0.2408 // Yoruba
+SNP_A-2080415      0.2112 // CEPH /// 0.357778 // Han Chinese /// 0.124444 // Japanese /// 0.455 // Yoruba
+                                               Number.of.individuals.Number.of.chromosomes
+SNP_A-1837999 49.0 // CEPH /// 44.0 // Han Chinese /// 45.0 // Japanese /// 49.0 // Yoruba
+SNP_A-4218752 47.0 // CEPH /// 45.0 // Han Chinese /// 45.0 // Japanese /// 50.0 // Yoruba
+SNP_A-2080415 50.0 // CEPH /// 45.0 // Han Chinese /// 45.0 // Japanese /// 50.0 // Yoruba
+              In.Hapmap Strand.Versus.dbSNP
+SNP_A-1837999       YES             reverse
+SNP_A-4218752       ---                same
+SNP_A-2080415       YES                same
+                                                                                                                                                                                                                                                       Copy.Number.Variation
+SNP_A-1837999 Variation_72721 // chr17:41-21799 // NimbleGen custom 42M oligo array CGH // 19812545 // Conrad et al. (2009) // CopyNumber /// Variation_72723 // chr17:16444-21699 // NimbleGen custom 42M oligo array CGH // 19812545 // Conrad et al. (2009) // CopyNumber
+SNP_A-4218752                                                                                                                                                                                                                                                            ---
+SNP_A-2080415                                                                                                                                                                                                                                                            ---
+              Probe.Count ChrX.pseudo.autosomal.region.2 In.Final.List
+SNP_A-1837999          12                              0           YES
+SNP_A-4218752          12                              0           YES
+SNP_A-2080415          12                              0           YES
+                                                                          Minor.Allele
+SNP_A-1837999 --- // CEPH /// --- // Han Chinese /// --- // Japanese /// --- // Yoruba
+SNP_A-4218752 --- // CEPH /// --- // Han Chinese /// --- // Japanese /// --- // Yoruba
+SNP_A-2080415 --- // CEPH /// --- // Han Chinese /// --- // Japanese /// --- // Yoruba
+                                                                                    Minor.Allele.Frequency
+SNP_A-1837999 0.142857 // CEPH /// 0.238636 // Han Chinese /// 0.044444 // Japanese /// 0.387755 // Yoruba
+SNP_A-4218752     0.393617 // CEPH /// 0.244444 // Han Chinese /// 0.066667 // Japanese /// 0.14 // Yoruba
+SNP_A-2080415         0.12 // CEPH /// 0.233333 // Han Chinese /// 0.066667 // Japanese /// 0.35 // Yoruba
+                                        X..GC OMIM
+SNP_A-1837999 0.532 // StyI /// 0.493 // NspI  ---
+SNP_A-4218752 0.478 // NspI /// 0.464 // StyI  ---
+SNP_A-2080415 0.572 // StyI /// 0.575 // NspI  ---
+> 
+> 
+> 
+> ###DATOS
+> load (file = file.path (.job$datadir, "data_processed", "res_merlin1.RData"))
+> datos <- resm1[["17"]]
+> dim (datos)
+[1] 2500   11
+> 
+> datos[1:3,]
+  CHR    POS LABEL         MODEL    LOD ALPHA   HLOD        snp GeneticMap
+1  17 0.0018 0.175 Rare_Dominant 2.0678     1 2.0678  rs4617924  0.1751987
+2  17 0.0020 0.198 Rare_Dominant 1.9448     1 1.9448  rs9788983  0.1977929
+3  17 0.0020 0.203 Rare_Dominant 1.9094     1 1.9094 rs12936617  0.2031970
+  deCODE.genetic.map PhysicalPosition
+1          0.1751987           114669
+2          0.1977929           129457
+3          0.2031970           132994
+> 
+> datos <- datos[,c ("snp", "CHR", "PhysicalPosition", "GeneticMap", "LOD")]
+> sapply (datos, class)
+             snp              CHR PhysicalPosition       GeneticMap 
+     "character"        "integer"      "character"        "numeric" 
+             LOD 
+       "numeric" 
+> 
+> datos[,"PhysicalPosition"] <- as.numeric (datos[,"PhysicalPosition"])
+> 
+> table (datos[,"PhysicalPosition"] == sort (datos[,"PhysicalPosition"]))
+
+TRUE 
+2500 
+> 
+> ################################################################################
+> 
+> 
+> ###BUSCAMOS LA REGION
+> ## plot (datos[,"LOD"], type = "l")
+> ## plot (datos[,"PhysicalPosition"], datos[,"LOD"], type = "l")
+> ## ##
+> ## plot  (datos[,"GeneticMap"], datos[, "LOD"], type = "l")
+> ## #lines (datos[,"GeneticMap"], datos[,"HLOD"], col = "red")
+> ## abline (h = 0, col = "blue")
+> ## abline (h = 2, col = "red")
+> 
+> 
+> which (datos[,"LOD"] > 0)
+ [1]    1    2    3    4    5    8    9   30   31   32   33   34   35   39   40
+[16]   41   42   55   56   57   58   59   60   61   62   66   68   69   70   71
+[31]   72   73   74   75   76 2005 2011 2012
+> datos[1:100,]
+           snp CHR PhysicalPosition GeneticMap      LOD
+1    rs4617924  17           114669  0.1751987   2.0678
+2    rs9788983  17           129457  0.1977929   1.9448
+3   rs12936617  17           132994  0.2031970   1.9094
+4   rs11650366  17           141035  0.2154827   1.8160
+5    rs4556857  17           173906  0.2657056   0.0582
+6   rs11868422  17           198072  0.3026283  -0.1669
+7    rs7207957  17           198273  0.3029354  -0.0407
+8    rs7501522  17           285676  0.4364765   1.6203
+9    rs9748016  17           410451  0.6271174   0.5881
+10   rs9894837  17           441275  0.6742127  -8.1214
+11   rs9893847  17           489043  0.7471964  -1.9126
+12   rs2360735  17           503759  0.7696806  -1.7875
+13   rs7225041  17           505227  0.7719236  -1.7766
+14  rs12450330  17           531729  0.8124154  -1.6034
+15    rs448465  17           559888  0.8554389  -1.4692
+16   rs7207469  17           585475  0.8945327  -1.4079
+17    rs423887  17           593600  0.9069467  -1.3711
+18    rs450289  17           629896  0.9624025  -1.2258
+19  rs13341601  17           735768  1.1241620  -0.9590
+20   rs7218037  17           769467  1.2769696  -0.8520
+21  rs41421745  17           807505  1.5002606  -0.9902
+22    rs333654  17           901830  2.0539681  -8.9938
+23   rs3744753  17           907907  2.0896413  -1.7458
+24  rs11247571  17           908502  2.0931341  -1.7048
+25      rs3263  17           908795  2.0948541  -1.6859
+26   rs9910794  17           936851  2.2595487  -0.9903
+27   rs4790290  17          1203617  3.4570387  -0.9384
+28   rs9891835  17          1225797  3.5342574  -0.9755
+29    rs902967  17          1233615  3.5614754  -0.9907
+30    rs902966  17          1233635  3.5615451   3.0093
+31   rs4790458  17          1241193  3.5878579   3.0093
+32   rs7213824  17          1249777  3.6177427   3.0093
+33   rs4790084  17          1282979  3.7333340   3.0093
+34   rs7219369  17          1516480  4.5462571   2.9301
+35   rs7223663  17          1587639  4.9596994   2.8839
+36   rs8074026  17          1657073  5.4456848  -1.1774
+37   rs7209873  17          1690284  5.6781367 -10.8331
+38  rs17821469  17          1690427  5.6791376  -1.6643
+39   rs8067685  17          1707762  5.8004695   2.7804
+40   rs8072508  17          1707893  5.8013864   2.7879
+41   rs7225086  17          1873008  6.9570664   2.1322
+42   rs7359575  17          1874153  6.9650806   2.1195
+43  rs12451788  17          1941048  7.2269059  -1.0378
+44  rs10459917  17          2009752  7.2424754 -12.1001
+45   rs8082647  17          2010597  7.2426668 -16.7683
+46   rs2641431  17          2030507  7.2471788  -7.5764
+47  rs11078855  17          2091308  7.2609573  -6.9652
+48  rs34166400  17          2146392  7.2734402  -7.9408
+49   rs8065650  17          2180823  7.2812428  -4.8681
+50   rs2447095  17          2293420  7.3067592  -7.1266
+51   rs3760228  17          2306695  7.3097675 -20.9898
+52   rs4613098  17          2318550  7.3124540  -3.7971
+53   rs9892878  17          2377312  7.3257705  -3.0217
+54  rs11078210  17          2416699  7.3346962  -2.5948
+55   rs8077351  17          2545473  7.3638785   1.2083
+56    rs768064  17          2545804  7.3639535   1.2104
+57   rs1109451  17          2592031  7.3744293   1.4534
+58  rs16952345  17          2637385  7.3847072   1.6342
+59   rs9905703  17          2684422  7.3953666   1.7891
+60    rs178573  17          2696316  7.3980620   1.8253
+61   rs8080237  17          2719341  7.4426605   2.2695
+62   rs9901515  17          2766970  7.5830515   1.7406
+63  rs12451246  17          2841595  7.8030158 -13.5721
+64  rs12950579  17          2855602  7.8443028  -1.8566
+65   rs1078412  17          2886077  7.9341307  -0.4335
+66   rs4790120  17          3023867  8.3402798   0.6239
+67  rs10521125  17          3096308  8.5538065  -3.1843
+68   rs4273072  17          3111798  8.5994648   0.6748
+69   rs9907868  17          3111882  8.5997124   0.6781
+70   rs9303170  17          3210368  8.8900092   2.5589
+71   rs7224497  17          3212779  8.8971158   2.5769
+72   rs8077966  17          3214916  8.9034148   2.5901
+73  rs16952933  17          3247288  8.9988344   2.7797
+74    rs230475  17          3269345  9.0638495   2.9002
+75   rs2318030  17          3285752  9.1122107   2.4534
+76   rs3907384  17          3301797  9.1595048   1.3126
+77   rs9896528  17          3307546  9.1764505 -20.9899
+78  rs11652855  17          3313063  9.1927124  -8.3864
+79  rs16953018  17          3321582  9.2178230 -20.7153
+80  rs16953050  17          3347706  9.2948260  -6.1208
+81  rs11078451  17          3377743  9.3833629  -5.8182
+82   rs8067651  17          3413534  9.4888602 -14.2444
+83  rs12602739  17          3413551  9.4889103  -4.7732
+84   rs8068833  17          3413580  9.4889958  -4.3372
+85  rs11078454  17          3425554  9.5242903  -1.2673
+86    rs161364  17          3477812  9.6783257  -0.0697
+87    rs150908  17          3484368  9.6976502  -3.5445
+88    rs224503  17          3548784  9.8875224  -3.7773
+89   rs2567862  17          3612762 10.0761036  -3.9571
+90  rs11651728  17          3693400 10.3100013  -6.9819
+91  rs16953493  17          3714058 10.3541576  -6.9177
+92  rs17175747  17          3719770 10.3663669  -6.9120
+93   rs4790161  17          3889843 10.6984020 -11.1337
+94    rs781844  17          3958627 10.8181725 -13.0760
+95    rs781843  17          3958840 10.8185434 -13.1634
+96   rs2271717  17          3959731 10.8200949 -13.9211
+97    rs781841  17          3960436 10.8213225  -5.9652
+98  rs16953678  17          3961617 10.8233789  -5.1236
+99   rs9890881  17          4012739 10.9123954  -3.3806
+100  rs7219998  17          4034456 10.9502102  -7.9712
+> 
+> corte <- max (datos[1:100, "PhysicalPosition"])
+> corte
+[1] 4034456
+> 
+> ################################################################################
+> ################################################################################
+> 
+> datosc <- datos[1:100,]
+> rownames (datosc) <- datosc$snp
+> 
+> c("rs2610383", "rs4055285", "rs41348644") %in% datosc$snp  ##OK los SNPs con varias posiciones no estan aqui
+[1] FALSE FALSE FALSE
+> 
+> "rs41480146" %in% datosc$snp  ##OK el SNP desaparedico no esta aqui
+[1] FALSE
+> 
+> ################################################################################
+> 
+> ## plot  (datosc[, "GeneticMap"], datosc[, "LOD"], type = "l")
+> ## abline (h = 0, col = "blue")
+> ## abline (h = 2, col = "red")
+> ## abline (h = 3, col = "grey")
+> 
+> ## plot  (datosc[, "PhysicalPosition"], datosc[, "LOD"], type = "l")
+> ## abline (h = 0, col = "blue")
+> ## abline (h = 2, col = "red")
+> ## abline (h = 3, col = "grey")
+> ## abline (h = 2.5, col = "grey")
+> 
+> ################################################################################
+> 
+> touse <- annot[,"Physical.Position"] <= corte
+> table (touse)
+touse
+FALSE  TRUE 
+ 4629   215 
+> 
+> annot <- annot[touse,]
+> rownames (annot) <- annot[,"dbSNP.RS.ID"]
+> 
+> ###Plot
+> posiciones <- annot[,"Physical.Position"]
+> names (posiciones) <- annot[,"dbSNP.RS.ID"]
+> 
+> posin <- names (posiciones) %in% datos[,"snp"]
+> table (posin)
+posin
+FALSE  TRUE 
+  115   100 
+> 
+> altos <- datosc[, "LOD"] > 2.5
+> datosc[altos,]
+                  snp CHR PhysicalPosition GeneticMap    LOD
+rs902966     rs902966  17          1233635   3.561545 3.0093
+rs4790458   rs4790458  17          1241193   3.587858 3.0093
+rs7213824   rs7213824  17          1249777   3.617743 3.0093
+rs4790084   rs4790084  17          1282979   3.733334 3.0093
+rs7219369   rs7219369  17          1516480   4.546257 2.9301
+rs7223663   rs7223663  17          1587639   4.959699 2.8839
+rs8067685   rs8067685  17          1707762   5.800469 2.7804
+rs8072508   rs8072508  17          1707893   5.801386 2.7879
+rs9303170   rs9303170  17          3210368   8.890009 2.5589
+rs7224497   rs7224497  17          3212779   8.897116 2.5769
+rs8077966   rs8077966  17          3214916   8.903415 2.5901
+rs16952933 rs16952933  17          3247288   8.998834 2.7797
+rs230475     rs230475  17          3269345   9.063849 2.9002
+> ##
+> datosc["rs7223663", "PhysicalPosition"]
+[1] 1587639
+> datosc["rs8067685", "PhysicalPosition"]
+[1] 1707762
+> 
+> 
+> pdf (file = file.path (.job$plotsdir, "cromosoma17_primera_parte.pdf"), width = 7*2, height = 7, onefile = TRUE)
+> ##
+> plot  (datosc[, "PhysicalPosition"], datosc[, "LOD"], type = "l", main = "chr 17; primera parte...")
+> abline (h = 0, col = "blue")
+> abline (h = 2, col = "red")
+> abline (h = 3, col = "grey")
+> abline (h = 2.5, col = "grey")
+> ##
+> points (cbind (posiciones[!posin],   0), col = "red",   pch = "|")
+> points (cbind (posiciones[posin], -0.5), col = "green", pch = "|")
+> #abline (v = datosc["rs902966", "PhysicalPosition"], col = "grey", lty = 2)
+> abline (v = datosc["rs7223663", "PhysicalPosition"], col = "grey", lty = 2)
+> abline (v = datosc["rs8067685", "PhysicalPosition"], col = "grey", lty = 2)
+> ##
+> dev.off ()
+null device 
+          1 
+> 
+> ################################################################################
+> 
+> ###FORMATEAMOS
+> add <- matrix (NA, nrow = sum (!posin), ncol = ncol (datosc))
+> colnames (add) <- colnames (datosc)
+> add <- as.data.frame (add)
+> dim (add)
+[1] 115   5
+> 
+> tocomplete <- setdiff (annot$dbSNP.RS.ID, datosc$snp)
+> length (tocomplete)
+[1] 115
+> 
+> add[,"snp"] <- tocomplete 
+> add[,"CHR"] <- 17
+> add[,"PhysicalPosition"] <- annot[tocomplete, "Physical.Position"]
+> 
+> datos2 <- rbind (datosc, add)
+> sapply (datos2, class)
+             snp              CHR PhysicalPosition       GeneticMap 
+     "character"        "numeric"        "numeric"        "numeric" 
+             LOD 
+       "numeric" 
+> 
+> orden <- order (datos2$PhysicalPosition)
+> datos2 <- datos2[orden,]
+> 
+> table (sort (datosc$PhysicalPosition) ==  (datosc$PhysicalPosition))
+
+TRUE 
+ 100 
+> 
+> ################################################################################
+> 
+> ###incluimos las CALLS
+> table (datos2$snp %in% rownames (calls))
+
+FALSE  TRUE 
+   57   158 
+> table (datosc$snp %in% rownames (calls))
+
+TRUE 
+ 100 
+> 
+> datosc <- cbind (datosc, calls[datosc$snp,])
+> sapply (datosc, class)
+             snp              CHR PhysicalPosition       GeneticMap 
+     "character"        "integer"        "numeric"        "numeric" 
+             LOD           id1046           id1047            id715 
+       "numeric"      "character"      "character"      "character" 
+           id716            id717            id718            id719 
+     "character"      "character"      "character"      "character" 
+           id720            id721            id722            id723 
+     "character"      "character"      "character"      "character" 
+           id724            id726            id907 
+     "character"      "character"      "character" 
+> 
+> datos2 <- cbind (datos2, calls[datos2$snp,])
+> sapply (datos2, class)
+             snp              CHR PhysicalPosition       GeneticMap 
+     "character"        "numeric"        "numeric"        "numeric" 
+             LOD           id1046           id1047            id715 
+       "numeric"      "character"      "character"      "character" 
+           id716            id717            id718            id719 
+     "character"      "character"      "character"      "character" 
+           id720            id721            id722            id723 
+     "character"      "character"      "character"      "character" 
+           id724            id726            id907 
+     "character"      "character"      "character" 
+> 
+> save (list = c("datosc", "datos2"), file = file.path (.job$datadir, "data_processed", "datos_principio_chr17.RData"))
+> 
+> 
+> ###SALVAMOS
+> setwd (file.path (.job$datadir, "data_results", "from_script_results", "estudio_cromosoma_17"))
+> 
+> write.table (datosc, file = "principio_chr17_conLOD.txt", quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
+> write.table (datos2, file = "principio_chr17_array.txt", quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
+> 
+> 
+> 
+> ###EXIT
+> warnings ()
+NULL
+> sessionInfo ()
+R version 2.13.1 (2011-07-08)
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=C              LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+> q ("no")
+> proc.time()
+   user  system elapsed 
+ 37.390   0.290  37.812 
